@@ -1,20 +1,39 @@
-import express from "express";
-const postRouter = express.Router();
-import { create, deleteById, read ,readById,update } from "../controllers/posts.mjs";
+import { Router } from "express";
+import {
+  deleteById,
+  readAllPosts,
+  createPost,
+  readById,
+  updatePost,
+} from "../controllers/posts.mjs";
+import { validatePost } from "../middlewares/posts.mjs";
+import { protectAdmin } from "../middlewares/protectRoute.mjs";
+import { imageFileUpload, uploadToSupabase } from "../middlewares/upload.mjs";
 
-//GET
-postRouter.get("/", read);
-postRouter.get("/:postId", readById);
+const postRouter = Router();
 
 //POST
-postRouter.post("/", create);
+postRouter.post(
+  "/",
+  [protectAdmin, imageFileUpload, uploadToSupabase, validatePost],
+  createPost
+);
+
+//GET
+postRouter.get("/", readAllPosts);
+postRouter.get("/:postId", readById);
 
 //PUT
-postRouter.put("/:postId", update);
+postRouter.put(
+  "/:postId",
+  protectAdmin,
+  imageFileUpload,
+  uploadToSupabase,
+  validatePost,
+  updatePost
+);
 
 //DELETE
 postRouter.delete("/:postId", deleteById);
-
-
 
 export default postRouter;

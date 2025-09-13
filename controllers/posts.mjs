@@ -2,26 +2,55 @@ import connectionPool from "../utils/db.mjs";
 
 // POST
 
-export const create = async (req, res) => {
-  const { title, image, category_id, description, content, status_id } =
-    req.body;
+export const createPost = async (req, res) => {
   try {
-    const query = await connectionPool.query(
-      `INSERT INTO posts (title, image, category_id, description, content, status_id)
-        VALUES($1, $2, $3, $4, $5, $6)`,
-      [title, image, category_id, description, content, status_id]
-    );
-    res.status(201).json({ message: "Created post sucessfully" });
-  } catch (error) {
-    res.status(500).json({
-      message: "Server could not create post because database connection",
+    const newPost = req.body;
+    const imageUrl = req.imageUrl;
+
+    // validate ขั้นต้น
+    if (!newPost.title) {
+      return res.status(400).json({ error: "title is required" });
+    }
+    if (!newPost.category_id) {
+      return res.status(400).json({ error: "category_id is required" });
+    }
+    if (!newPost.status_id) {
+      return res.status(400).json({ error: "status_id is required" });
+    }
+    if (!imageUrl) {
+      return res.status(400).json({ error: "image upload failed" });
+    }
+
+    const values = [
+      newPost.title,
+      imageUrl,
+      parseInt(newPost.category_id),
+      newPost.description || null,
+      newPost.content || null,
+      parseInt(newPost.status_id),
+    ];
+
+    const query = `
+      INSERT INTO posts (title, image, category_id, description, content, status_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id
+    `;
+
+    await connectionPool.query(query, values);
+
+    return res.status(201).json({ message: "Created post successfully" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Server could not create post",
+      error: err.message,
     });
   }
 };
 
 //GET
 
-export const read = async (req, res) => {
+export const readAllPosts = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 6;
@@ -104,6 +133,7 @@ export const read = async (req, res) => {
 
 export const readById = async (req, res) => {
   const { postId } = req.params;
+
   try {
     const results = await connectionPool.query(
       `SELECT posts.id, posts.title, posts.image, categories.name AS category, posts.description, posts.date, posts.content, statuses.status AS status, posts.likes_count 
@@ -123,29 +153,57 @@ export const readById = async (req, res) => {
 
 //PUT
 
-export const update = async (req, res) => {
-  const { postId } = req.params;
-  const { date } = new Date();
-  const { title, image, category_id, description, content, status_id } =
-    req.body;
-
+export const updatePost = async (req, res) => {
   try {
+    const { postId } = req.params;
+    const date = new Date();
+    const { title, category_id, description, content, status_id } = req.body;
+    const imageUrl = req.imageUrl;
+    
+    console.log("Debug - postId:", postId);
+    console.log("Debug - req.body:", req.body);
+    console.log("Debug - imageUrl:", imageUrl);
+    console.log("Debug - date:", date);
+    const existingPost = await connectionPool.query(
+      `SELECT * FROM posts WHERE id = $1`,
+      [postId]
+    );
+
+    if (existingPost.rows.length === 0) {
+      return res.status(404).json({ error: "Post not found" });
+    }
     const results = await connectionPool.query(
       `UPDATE posts  
-      SET title = $2,
-      image = $3,
-      category_id = $4,
-      description = $5,
-      content = $6,
-      status_id = $7,
-      date = $8
-      WHERE id = $1`,
-      [postId, title, image, category_id, description, content, status_id, date]
+       SET title = $2,
+           image = $3,
+           category_id = $4,
+           description = $5,
+           content = $6,
+           status_id = $7,
+           date = $8
+       WHERE id = $1
+       RETURNING *`,
+      [
+        postId,
+        title,
+        imageUrl,
+        category_id,
+        description,
+        content,
+        status_id,
+        date,
+      ]
     );
-    res.status(200).json({ message: "Updated post sucessfully" });
+
+    res.status(200).json({
+      message: "Updated post successfully",
+      post: results.rows[0],
+    });
   } catch (error) {
+    console.error("Update post error:", error);
     res.status(500).json({
-      message: "Server could not update post because database connection",
+      message: "Server could not update post",
+      error: error.message
     });
   }
 };
