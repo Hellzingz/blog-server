@@ -160,10 +160,6 @@ export const updatePost = async (req, res) => {
     const { title, category_id, description, content, status_id } = req.body;
     const imageUrl = req.imageUrl;
     
-    console.log("Debug - postId:", postId);
-    console.log("Debug - req.body:", req.body);
-    console.log("Debug - imageUrl:", imageUrl);
-    console.log("Debug - date:", date);
     const existingPost = await connectionPool.query(
       `SELECT * FROM posts WHERE id = $1`,
       [postId]
