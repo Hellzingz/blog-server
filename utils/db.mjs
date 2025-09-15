@@ -5,6 +5,7 @@ dotenv.config();
 
 const connectionPool = new Pool({
   connectionString: process.env.POSTGRESQL_URI,
+  ssl: { rejectUnauthorized: false }
 });
 
 export default connectionPool;
