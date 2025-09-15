@@ -25,6 +25,5 @@ app.get("/", (req, res) => {
 // Optional: handle favicon request
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
-// ❌ ห้ามใช้ app.listen() บน Vercel
 // ✅ Export app
 export default (req, res) => app(req, res)

@@ -51,6 +51,7 @@ export const createPost = async (req, res) => {
 //GET
 
 export const readAllPosts = async (req, res) => {
+ 
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 6;
@@ -61,12 +62,14 @@ export const readAllPosts = async (req, res) => {
     const truelimit = Math.max(1, Math.min(100, limit));
     const offset = (truePage - 1) * truelimit;
 
-    let query = `
-      SELECT posts.id, posts.image, categories.name AS category, posts.title, posts.description, posts.date, posts.content, statuses.status, posts.likes_count
-      FROM posts
-      INNER JOIN categories ON posts.category_id = categories.id
-      INNER JOIN statuses ON posts.status_id = statuses.id
-    `;
+    // let query = `
+    //   SELECT posts.id, posts.image, categories.name AS category, posts.title, posts.description, posts.date, posts.content, statuses.status, posts.likes_count
+    //   FROM posts
+    //   INNER JOIN categories ON posts.category_id = categories.id
+    //   INNER JOIN statuses ON posts.status_id = statuses.id
+    // `;
+
+    let query = `select * from posts`
     let values = [];
 
     if (category && keyword) {
