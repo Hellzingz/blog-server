@@ -22,8 +22,5 @@ app.get("/", (req, res) => {
   res.send("Serverless Express on Vercel is working!");
 });
 
-// Optional: handle favicon request
-app.get("/favicon.ico", (req, res) => res.status(204).end());
 
-// ✅ Export app
 export default (req, res) => app(req, res)
