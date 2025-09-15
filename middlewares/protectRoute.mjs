@@ -1,9 +1,23 @@
 import { createClient } from "@supabase/supabase-js";
 import connectionPool from "../utils/db.mjs";
 
+const SUPABASE_URL = process.env.SUPABASE_URL?.trim()
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY?.trim()
+
+// Safe debug (ไม่พิมพ์ค่า key จริง)
+console.log("Has SUPABASE_URL?", !!SUPABASE_URL)
+console.log("Has SUPABASE_ANON_KEY?", !!SUPABASE_ANON_KEY)
+
+if (!SUPABASE_URL || !SUPABASE_URL.startsWith("http")) {
+  throw new Error("Invalid SUPABASE_URL. Make sure it includes https:// and project ref")
+}
+if (!SUPABASE_ANON_KEY) {
+  throw new Error("Missing SUPABASE_ANON_KEY")
+}
+
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
 );
 
 // USER

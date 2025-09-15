@@ -1,25 +1,30 @@
-import express from "express"
-import cors from "cors"
-import dotenv from 'dotenv'
-import postRouter from "./routes/posts.mjs"
-import authRouter from "./routes/auth.mjs"
-import categoryRouter from "./routes/categories.mjs"
+import express from "express";
+import cors from "cors";
+import dotenv from 'dotenv';
+import postRouter from "./routes/posts.mjs";
+import authRouter from "./routes/auth.mjs";
+import categoryRouter from "./routes/categories.mjs";
 
-dotenv.config()
-const app = express()
-app.use(express.json())
-app.use(cors())
+dotenv.config();
+const app = express();
 
-const PORT = process.env.PORT || 4001
+// Middleware
+app.use(express.json());
+app.use(cors());
 
+// API Routes
+app.use('/posts', postRouter);
+app.use('/auth', authRouter);
+app.use('/categories', categoryRouter);
 
-app.use('/posts', postRouter)
-app.use('/auth', authRouter)
-app.use('/categories', categoryRouter)
+// Optional: root route for test
+app.get("/", (req, res) => {
+  res.send("Serverless Express on Vercel is working!");
+});
 
-app.get('/', (req, res)=>{
-    res.send("Test")
-})
+// Optional: handle favicon request
+app.get("/favicon.ico", (req, res) => res.status(204).end());
 
-
-export default app;
+// ❌ ห้ามใช้ app.listen() บน Vercel
+// ✅ Export app
+export default (req, res) => app(req, res)
