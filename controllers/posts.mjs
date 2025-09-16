@@ -156,25 +156,64 @@ export const createPost = async (req, res) => {
 
 export const readAllPosts = async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('posts')
-      .select('*')
-      .order('date', { ascending: false });
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
+    const keyword = req.query.keyword || "";
+    const category = req.query.category || "";
 
-    if (error) {
-      console.error("readAllPosts error:", error);
-      return res.status(500).json({
-        message: "Server could not get posts due to database connection error",
-        error: error.message
-      });
+    const truePage = Math.max(1, page);
+    const truelimit = Math.max(1, Math.min(100, limit));
+    const offset = (truePage - 1) * truelimit;
+
+    // Base query
+    let query = supabase
+      .from("posts")
+      .select(
+        `id, image, title, description, date, content, likes_count, 
+         categories(name), statuses(status)`,
+        { count: "exact" } // ให้ supabase return count ด้วย
+      )
+      .order("date", { ascending: false })
+      .range(offset, offset + truelimit - 1);
+
+    // Filter by category
+    if (category) {
+      query = query.ilike("categories.name", `%${category}%`);
     }
 
-    res.status(200).json(data);
+    // Filter by keyword (title, content, description)
+    if (keyword) {
+      query = query.or(
+        `title.ilike.%${keyword}%,content.ilike.%${keyword}%,description.ilike.%${keyword}%`
+      );
+    }
+
+    const { data: posts, count: totalPosts, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    const results = {
+      totalPosts,
+      totalPages: Math.ceil(totalPosts / truelimit),
+      currentPage: truePage,
+      limit: truelimit,
+      posts,
+    };
+
+    if (offset + truelimit < totalPosts) {
+      results.nextPage = truePage + 1;
+    }
+    if (offset > 0) {
+      results.previousPage = truePage - 1;
+    }
+
+    res.status(200).json(results);
   } catch (error) {
-    console.error("readAllPosts error:", error);
     res.status(500).json({
-      message: "Server could not get posts due to database connection error",
-      error: error.message
+      message: "Server could not get posts because of Supabase error",
+      error: error.message,
     });
   }
 };
