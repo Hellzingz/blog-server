@@ -23,7 +23,7 @@ export const validatePost = (req, res, next) => {
   if (typeof formData.title !== "string") {
     return res.status(400).json({ message: "Title must be string" });
   }
-  if (typeof Number(formData.category_id) !== "number") {
+  if (isNaN(Number(formData.category_id))) {
     return res.status(400).json({ message: "Category ID must be a number" });
   }
   if (typeof formData.description !== "string") {
@@ -32,7 +32,7 @@ export const validatePost = (req, res, next) => {
   if (typeof formData.content !== "string") {
     return res.status(400).json({ message: "Content must be string" });
   }
-  if (typeof Number(formData.status_id) !== "number") {
+  if (isNaN(Number(formData.status_id))) {
     return res.status(400).json({ message: "Status ID must be a number" });
   }
   next();

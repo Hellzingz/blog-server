@@ -1,6 +1,12 @@
 import connectionPool from "../utils/db.mjs";
 import { createClient } from "@supabase/supabase-js";
 
+// ตรวจสอบ environment variables
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+  console.error('Error: Supabase environment variables are not set');
+  process.exit(1);
+}
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
@@ -62,7 +68,11 @@ export const register = async (req, res) => {
       user: rows[0],
     });
   } catch (error) {
-    res.status(500).json({ error: "An error occurred during registration" });
+    console.error("Registration error:", error);
+    res.status(500).json({ 
+      error: "An error occurred during registration",
+      details: error.message 
+    });
   }
 };
 
@@ -94,7 +104,11 @@ export const login = async (req, res) => {
       access_token: data.session.access_token,
     });
   } catch (error) {
-    return res.status(500).json({ error: "An error occurred during login" });
+    console.error("Login error:", error);
+    return res.status(500).json({ 
+      error: "An error occurred during login",
+      details: error.message 
+    });
   }
 };
 
@@ -121,6 +135,10 @@ export const getUser = async (req, res) => {
     const values = [supabaseUserId];
     const { rows } = await connectionPool.query(query, values);
 
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "User not found in database" });
+    }
+
     res.status(200).json({
       id: data.user.id,
       email: data.user.email,
@@ -130,7 +148,11 @@ export const getUser = async (req, res) => {
       profilePic: rows[0].profile_pic,
     });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Get user error:", error);
+    res.status(500).json({ 
+      error: "Internal server error",
+      details: error.message 
+    });
   }
 };
 
