@@ -1,13 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
-import connectionPool from "../utils/db.mjs";
 
-const SUPABASE_URL = process.env.SUPABASE_URL?.trim()
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY?.trim()
-
+// ตรวจสอบ environment variables
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+  console.error('Error: Supabase environment variables are not set');
+  process.exit(1);
+}
 
 const supabase = createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
 );
 
 // USER
@@ -55,20 +56,19 @@ export const protectAdmin = async (req, res, next) => {
     // ดึง user ID จากข้อมูลผู้ใช้ Supabase
     const supabaseUserId = data.user.id;
 
-    // ดึงข้อมูล role ของผู้ใช้จากฐานข้อมูล PostgreSQL
-    const query = `
-                      SELECT role FROM users 
-                      WHERE id = $1
-                    `;
-    const values = [supabaseUserId];
-    const { rows, error: dbError } = await connectionPool.query(query, values);
+    // ดึงข้อมูล role ของผู้ใช้จากฐานข้อมูล Supabase
+    const { data: userData, error: dbError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', supabaseUserId)
+      .single();
 
-    if (dbError || !rows.length) {
+    if (dbError || !userData) {
       return res.status(404).json({ error: "User role not found" });
     }
 
     // แนบข้อมูลผู้ใช้พร้อม role เข้ากับ request object
-    req.user = { ...data.user, role: rows[0].role };
+    req.user = { ...data.user, role: userData.role };
 
     // ตรวจสอบว่าผู้ใช้เป็น admin หรือไม่
     if (req.user.role !== "admin") {

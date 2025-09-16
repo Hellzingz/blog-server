@@ -1,4 +1,3 @@
-import connectionPool from "../utils/db.mjs";
 import { createClient } from "@supabase/supabase-js";
 
 // ตรวจสอบ environment variables
@@ -18,17 +17,17 @@ export const register = async (req, res) => {
 
   try {
     // ตรวจสอบว่า username มีในฐานข้อมูลหรือไม่
-    const usernameCheckQuery = `
-                                SELECT * FROM users 
-                                WHERE username = $1
-                               `;
-    const usernameCheckValues = [username];
-    const { rows: existingUser } = await connectionPool.query(
-      usernameCheckQuery,
-      usernameCheckValues
-    );
+    const { data: existingUser, error: usernameError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username);
 
-    if (existingUser.length > 0) {
+    if (usernameError) {
+      console.error("Username check error:", usernameError);
+      return res.status(500).json({ error: "Database error during username check" });
+    }
+
+    if (existingUser && existingUser.length > 0) {
       return res.status(400).json({ error: "This username is already taken" });
     }
 
@@ -53,19 +52,28 @@ export const register = async (req, res) => {
 
     const supabaseUserId = data.user.id;
 
-    // เพิ่มข้อมูลผู้ใช้ในฐานข้อมูล PostgreSQL
-    const query = `
-        INSERT INTO users (id, username, name, role)
-        VALUES ($1, $2, $3, $4)
-        RETURNING *;
-      `;
+    // เพิ่มข้อมูลผู้ใช้ในฐานข้อมูล Supabase
+    const { data: newUser, error: insertError } = await supabase
+      .from('users')
+      .insert([
+        {
+          id: supabaseUserId,
+          username: username,
+          name: name,
+          role: "user"
+        }
+      ])
+      .select()
+      .single();
 
-    const values = [supabaseUserId, username, name, "user"];
+    if (insertError) {
+      console.error("User insert error:", insertError);
+      return res.status(500).json({ error: "Failed to create user profile" });
+    }
 
-    const { rows } = await connectionPool.query(query, values);
     res.status(201).json({
       message: "User created successfully",
-      user: rows[0],
+      user: newUser,
     });
   } catch (error) {
     console.error("Registration error:", error);
@@ -128,24 +136,24 @@ export const getUser = async (req, res) => {
     }
 
     const supabaseUserId = data.user.id;
-    const query = `
-                      SELECT * FROM users 
-                      WHERE id = $1
-                    `;
-    const values = [supabaseUserId];
-    const { rows } = await connectionPool.query(query, values);
+    
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', supabaseUserId)
+      .single();
 
-    if (rows.length === 0) {
+    if (userError || !userData) {
       return res.status(404).json({ error: "User not found in database" });
     }
 
     res.status(200).json({
       id: data.user.id,
       email: data.user.email,
-      username: rows[0].username,
-      name: rows[0].name,
-      role: rows[0].role,
-      profilePic: rows[0].profile_pic,
+      username: userData.username,
+      name: userData.name,
+      role: userData.role,
+      profilePic: userData.profile_pic,
     });
   } catch (error) {
     console.error("Get user error:", error);
@@ -228,31 +236,31 @@ export const updateProfilePic = async (req, res) => {
     }
 
     const supabaseUserId = userData.user.id;
-    // อัปเดตรูปโปรไฟล์ในฐานข้อมูล PostgreSQL
-    const query = `
-      UPDATE users 
-      SET profile_pic = $2, 
-      name = $3,
-      username = $4
-      WHERE id = $1 
-      RETURNING *;
-    `;
+    
+    // อัปเดตรูปโปรไฟล์ในฐานข้อมูล Supabase
+    const { data: updatedUser, error: updateError } = await supabase
+      .from('users')
+      .update({
+        profile_pic: req.imageUrl,
+        name: name,
+        username: username
+      })
+      .eq('id', supabaseUserId)
+      .select()
+      .single();
 
-    const values = [supabaseUserId, req.imageUrl, name, username];
-    const { rows } = await connectionPool.query(query, values);
-
-    if (rows.length === 0) {
+    if (updateError || !updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
 
     res.status(200).json({
       message: "Profile updated successfully",
       user: {
-        id: rows[0].id,
-        username: rows[0].username,
-        name: rows[0].name,
-        role: rows[0].role,
-        profilePic: rows[0].profile_pic,
+        id: updatedUser.id,
+        username: updatedUser.username,
+        name: updatedUser.name,
+        role: updatedUser.role,
+        profilePic: updatedUser.profile_pic,
       },
     });
   } catch (error) {

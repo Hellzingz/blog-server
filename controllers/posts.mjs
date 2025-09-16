@@ -1,4 +1,15 @@
-import connectionPool from "../utils/db.mjs";
+import { createClient } from "@supabase/supabase-js";
+
+// ตรวจสอบ environment variables
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+  console.error('Error: Supabase environment variables are not set');
+  process.exit(1);
+}
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 // POST
 
@@ -21,24 +32,32 @@ export const createPost = async (req, res) => {
       return res.status(400).json({ error: "image upload failed" });
     }
 
-    const values = [
-      newPost.title,
-      imageUrl,
-      parseInt(newPost.category_id),
-      newPost.description || null,
-      newPost.content || null,
-      parseInt(newPost.status_id),
-    ];
+    const { data, error } = await supabase
+      .from('posts')
+      .insert([
+        {
+          title: newPost.title,
+          image: imageUrl,
+          category_id: parseInt(newPost.category_id),
+          description: newPost.description || null,
+          content: newPost.content || null,
+          status_id: parseInt(newPost.status_id)
+        }
+      ])
+      .select('id');
 
-    const query = `
-      INSERT INTO posts (title, image, category_id, description, content, status_id)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id
-    `;
+    if (error) {
+      console.error("Create post error:", error);
+      return res.status(500).json({ 
+        message: "Server could not create post",
+        error: error.message 
+      });
+    }
 
-    await connectionPool.query(query, values);
-
-    return res.status(201).json({ message: "Created post successfully" });
+    return res.status(201).json({ 
+      message: "Created post successfully",
+      postId: data[0].id 
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({
@@ -137,11 +156,20 @@ export const createPost = async (req, res) => {
 
 export const readAllPosts = async (req, res) => {
   try {
-    const results = await connectionPool.query(
-      `SELECT * 
-        FROM posts `
-    );
-    res.status(200).json(results.rows);
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error("readAllPosts error:", error);
+      return res.status(500).json({
+        message: "Server could not get posts due to database connection error",
+        error: error.message
+      });
+    }
+
+    res.status(200).json(data);
   } catch (error) {
     console.error("readAllPosts error:", error);
     res.status(500).json({
@@ -156,18 +184,49 @@ export const readById = async (req, res) => {
   const { postId } = req.params;
 
   try {
-    const results = await connectionPool.query(
-      `SELECT posts.id, posts.title, posts.image, categories.name AS category, posts.description, posts.date, posts.content, statuses.status AS status, posts.likes_count 
-        FROM posts 
-        INNER JOIN categories ON posts.category_id = categories.id
-        INNER JOIN statuses ON posts.status_id = statuses.id
-        WHERE posts.id = $1`,
-      [postId]
-    );
-    res.status(200).json(results.rows[0]);
+    const { data, error } = await supabase
+      .from('posts')
+      .select(`
+        id,
+        title,
+        image,
+        description,
+        date,
+        content,
+        likes_count,
+        categories!inner(name),
+        statuses!inner(status)
+      `)
+      .eq('id', postId)
+      .single();
+
+    if (error) {
+      console.error("readById error:", error);
+      return res.status(500).json({
+        message: "Server could not get post because database connection",
+        error: error.message
+      });
+    }
+
+    // แปลงข้อมูลให้ตรงกับ format เดิม
+    const formattedData = {
+      id: data.id,
+      title: data.title,
+      image: data.image,
+      category: data.categories.name,
+      description: data.description,
+      date: data.date,
+      content: data.content,
+      status: data.statuses.status,
+      likes_count: data.likes_count
+    };
+
+    res.status(200).json(formattedData);
   } catch (error) {
+    console.error("readById error:", error);
     res.status(500).json({
       message: "Server could not get post because database connection",
+      error: error.message
     });
   }
 };
@@ -181,40 +240,44 @@ export const updatePost = async (req, res) => {
     const { title, category_id, description, content, status_id } = req.body;
     const imageUrl = req.imageUrl;
     
-    const existingPost = await connectionPool.query(
-      `SELECT * FROM posts WHERE id = $1`,
-      [postId]
-    );
+    // ตรวจสอบว่า post มีอยู่หรือไม่
+    const { data: existingPost, error: checkError } = await supabase
+      .from('posts')
+      .select('id')
+      .eq('id', postId)
+      .single();
 
-    if (existingPost.rows.length === 0) {
+    if (checkError || !existingPost) {
       return res.status(404).json({ error: "Post not found" });
     }
-    const results = await connectionPool.query(
-      `UPDATE posts  
-       SET title = $2,
-           image = $3,
-           category_id = $4,
-           description = $5,
-           content = $6,
-           status_id = $7,
-           date = $8
-       WHERE id = $1
-       RETURNING *`,
-      [
-        postId,
-        title,
-        imageUrl,
-        category_id,
-        description,
-        content,
-        status_id,
-        date,
-      ]
-    );
+
+    // อัปเดต post
+    const { data, error } = await supabase
+      .from('posts')
+      .update({
+        title: title,
+        image: imageUrl,
+        category_id: category_id,
+        description: description,
+        content: content,
+        status_id: status_id,
+        date: date
+      })
+      .eq('id', postId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Update post error:", error);
+      return res.status(500).json({
+        message: "Server could not update post",
+        error: error.message
+      });
+    }
 
     res.status(200).json({
       message: "Updated post successfully",
-      post: results.rows[0],
+      post: data,
     });
   } catch (error) {
     console.error("Update post error:", error);
@@ -230,15 +293,25 @@ export const updatePost = async (req, res) => {
 export const deleteById = async (req, res) => {
   const { postId } = req.params;
   try {
-    const results = await connectionPool.query(
-      `DELETE FROM posts
-      WHERE posts.id = $1`,
-      [postId]
-    );
-    res.status(200).json({ message: "Deleted post sucessfully" });
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', postId);
+
+    if (error) {
+      console.error("Delete post error:", error);
+      return res.status(500).json({
+        message: "Server could not delete post because database connection",
+        error: error.message
+      });
+    }
+
+    res.status(200).json({ message: "Deleted post successfully" });
   } catch (error) {
+    console.error("Delete post error:", error);
     res.status(500).json({
-      message: "Server could not get post because database connection",
+      message: "Server could not delete post because database connection",
+      error: error.message
     });
   }
 };
