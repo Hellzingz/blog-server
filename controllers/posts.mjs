@@ -194,12 +194,25 @@ export const readAllPosts = async (req, res) => {
       throw error;
     }
 
+    // แปลงข้อมูลให้ตรงกับ format เดิม
+    const formattedPosts = posts.map(post => ({
+      id: post.id,
+      title: post.title,
+      image: post.image,
+      category: post.categories.name,
+      description: post.description,
+      date: post.date,
+      content: post.content,
+      status: post.statuses.status,
+      likes_count: post.likes_count
+    }));
+
     const results = {
       totalPosts,
       totalPages: Math.ceil(totalPosts / truelimit),
       currentPage: truePage,
       limit: truelimit,
-      posts,
+      posts: formattedPosts,
     };
 
     if (offset + truelimit < totalPosts) {
