@@ -100,7 +100,7 @@ export const readAllPosts = async (req, res) => {
 
     //Filter by status
     if (status) {
-      query = query.eq("statuses.id", status);
+      query = query.eq("status_id", status)
     }
 
     // Filter by keyword (title, content, description)
