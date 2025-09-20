@@ -172,7 +172,7 @@ export const readAllPosts = async (req, res) => {
         `
         id, image, title, description, date, content, likes_count,
         categories!inner(id, name),
-        statuses(status)
+        statuses(id, status)
       `,
         { count: "exact" }
       )
@@ -183,8 +183,10 @@ export const readAllPosts = async (req, res) => {
     if (category) {
       query = query.ilike("categories.name", `%${category}%`);
     }
+
+    //Filter by status
     if (status) {
-      query = query.ilike("statuses.status", `%${status}%`);
+      query = query.eq("statuses.id", status);
     }
 
     // Filter by keyword (title, content, description)
