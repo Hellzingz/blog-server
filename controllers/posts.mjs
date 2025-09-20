@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // ตรวจสอบ environment variables
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-  console.error('Error: Supabase environment variables are not set');
+  console.error("Error: Supabase environment variables are not set");
   process.exit(1);
 }
 
@@ -33,7 +33,7 @@ export const createPost = async (req, res) => {
     }
 
     const { data, error } = await supabase
-      .from('posts')
+      .from("posts")
       .insert([
         {
           title: newPost.title,
@@ -41,22 +41,22 @@ export const createPost = async (req, res) => {
           category_id: parseInt(newPost.category_id),
           description: newPost.description || null,
           content: newPost.content || null,
-          status_id: parseInt(newPost.status_id)
-        }
+          status_id: parseInt(newPost.status_id),
+        },
       ])
-      .select('id');
+      .select("id");
 
     if (error) {
       console.error("Create post error:", error);
-      return res.status(500).json({ 
+      return res.status(500).json({
         message: "Server could not create post",
-        error: error.message 
+        error: error.message,
       });
     }
 
-    return res.status(201).json({ 
+    return res.status(201).json({
       message: "Created post successfully",
-      postId: data[0].id 
+      postId: data[0].id,
     });
   } catch (err) {
     console.error(err);
@@ -70,7 +70,7 @@ export const createPost = async (req, res) => {
 //GET
 
 // export const readAllPosts = async (req, res) => {
- 
+
 //   try {
 //     const page = Number(req.query.page) || 1;
 //     const limit = Number(req.query.limit) || 6;
@@ -112,8 +112,8 @@ export const createPost = async (req, res) => {
 
 //     //Pagination
 
-//     let countQuery = `SELECT COUNT(*)  
-//   FROM posts 
+//     let countQuery = `SELECT COUNT(*)
+//   FROM posts
 //   INNER JOIN categories ON posts.category_id = categories.id
 //   INNER JOIN statuses ON posts.status_id = statuses.id`;
 //     let countValues = values.slice(0, -2);
@@ -153,7 +153,6 @@ export const createPost = async (req, res) => {
 //   }
 // };
 
-
 export const readAllPosts = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
@@ -169,9 +168,12 @@ export const readAllPosts = async (req, res) => {
     let query = supabase
       .from("posts")
       .select(
-        `id, image, title, description, date, content, likes_count, 
-         categories(name), statuses(status)`,
-        { count: "exact" } // ให้ supabase return count ด้วย
+        `
+        id, image, title, description, date, content, likes_count,
+        categories!inner(id, name),
+        statuses(status)
+      `,
+        { count: "exact" }
       )
       .order("date", { ascending: false })
       .range(offset, offset + truelimit - 1);
@@ -195,7 +197,7 @@ export const readAllPosts = async (req, res) => {
     }
 
     // แปลงข้อมูลให้ตรงกับ format เดิม
-    const formattedPosts = posts.map(post => ({
+    const formattedPosts = posts.map((post) => ({
       id: post.id,
       title: post.title,
       image: post.image,
@@ -204,7 +206,7 @@ export const readAllPosts = async (req, res) => {
       date: post.date,
       content: post.content,
       status: post.statuses.status,
-      likes_count: post.likes_count
+      likes_count: post.likes_count,
     }));
 
     const results = {
@@ -231,14 +233,14 @@ export const readAllPosts = async (req, res) => {
   }
 };
 
-
 export const readById = async (req, res) => {
   const { postId } = req.params;
 
   try {
     const { data, error } = await supabase
-      .from('posts')
-      .select(`
+      .from("posts")
+      .select(
+        `
         id,
         title,
         image,
@@ -248,15 +250,16 @@ export const readById = async (req, res) => {
         likes_count,
         categories!inner(name),
         statuses!inner(status)
-      `)
-      .eq('id', postId)
+      `
+      )
+      .eq("id", postId)
       .single();
 
     if (error) {
       console.error("readById error:", error);
       return res.status(500).json({
         message: "Server could not get post because database connection",
-        error: error.message
+        error: error.message,
       });
     }
 
@@ -270,7 +273,7 @@ export const readById = async (req, res) => {
       date: data.date,
       content: data.content,
       status: data.statuses.status,
-      likes_count: data.likes_count
+      likes_count: data.likes_count,
     };
 
     res.status(200).json(formattedData);
@@ -278,7 +281,7 @@ export const readById = async (req, res) => {
     console.error("readById error:", error);
     res.status(500).json({
       message: "Server could not get post because database connection",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -291,12 +294,12 @@ export const updatePost = async (req, res) => {
     const date = new Date();
     const { title, category_id, description, content, status_id } = req.body;
     const imageUrl = req.imageUrl;
-    
+
     // ตรวจสอบว่า post มีอยู่หรือไม่
     const { data: existingPost, error: checkError } = await supabase
-      .from('posts')
-      .select('id')
-      .eq('id', postId)
+      .from("posts")
+      .select("id")
+      .eq("id", postId)
       .single();
 
     if (checkError || !existingPost) {
@@ -305,7 +308,7 @@ export const updatePost = async (req, res) => {
 
     // อัปเดต post
     const { data, error } = await supabase
-      .from('posts')
+      .from("posts")
       .update({
         title: title,
         image: imageUrl,
@@ -313,9 +316,9 @@ export const updatePost = async (req, res) => {
         description: description,
         content: content,
         status_id: status_id,
-        date: date
+        date: date,
       })
-      .eq('id', postId)
+      .eq("id", postId)
       .select()
       .single();
 
@@ -323,7 +326,7 @@ export const updatePost = async (req, res) => {
       console.error("Update post error:", error);
       return res.status(500).json({
         message: "Server could not update post",
-        error: error.message
+        error: error.message,
       });
     }
 
@@ -335,7 +338,7 @@ export const updatePost = async (req, res) => {
     console.error("Update post error:", error);
     res.status(500).json({
       message: "Server could not update post",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -345,16 +348,13 @@ export const updatePost = async (req, res) => {
 export const deleteById = async (req, res) => {
   const { postId } = req.params;
   try {
-    const { error } = await supabase
-      .from('posts')
-      .delete()
-      .eq('id', postId);
+    const { error } = await supabase.from("posts").delete().eq("id", postId);
 
     if (error) {
       console.error("Delete post error:", error);
       return res.status(500).json({
         message: "Server could not delete post because database connection",
-        error: error.message
+        error: error.message,
       });
     }
 
@@ -363,7 +363,7 @@ export const deleteById = async (req, res) => {
     console.error("Delete post error:", error);
     res.status(500).json({
       message: "Server could not delete post because database connection",
-      error: error.message
+      error: error.message,
     });
   }
 };
