@@ -159,6 +159,7 @@ export const readAllPosts = async (req, res) => {
     const limit = Number(req.query.limit) || 6;
     const keyword = req.query.keyword || "";
     const category = req.query.category || "";
+    const status = req.query.status || "";
 
     const truePage = Math.max(1, page);
     const truelimit = Math.max(1, Math.min(100, limit));
@@ -181,6 +182,9 @@ export const readAllPosts = async (req, res) => {
     // Filter by category
     if (category) {
       query = query.ilike("categories.name", `%${category}%`);
+    }
+    if (status) {
+      query = query.ilike("statuses.status", `%${status}%`);
     }
 
     // Filter by keyword (title, content, description)
