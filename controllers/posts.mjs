@@ -12,6 +12,8 @@ const supabase = createClient(
 );
 
 // POST
+
+//Comments
 export const createComment = async (req, res) => {
   try {
     const { post_id, user_id, comment_text } = req.body;
@@ -44,6 +46,55 @@ export const createComment = async (req, res) => {
   }
 };
 
+//Likes
+export const handleLikes = async (req, res) => {
+  try {
+    const { post_id, user_id } = req.body;
+
+    const { data: existing, error: checkError } = await supabase
+      .from("likes")
+      .select("*")
+      .eq("user_id", user_id)
+      .eq("post_id", post_id)
+      .maybeSingle();
+
+    const { data: post, error: postError } = await supabase
+      .from("posts")
+      .select("likes_count")
+      .eq("id", post_id)
+      .single();
+
+    if (postError) throw postError;
+
+    if (existing) {
+      await supabase.from("likes").delete().eq("id", existing.id);
+
+      await supabase
+        .from("posts")
+        .update({ likes_count: Math.max(post.likes_count - 1, 0) })
+        .eq("id", post_id);
+
+      return res.json({ status: "unliked" });
+    } else {
+      await supabase.from("likes").insert({ user_id, post_id });
+
+      await supabase
+        .from("posts")
+        .update({ likes_count: post.likes_count + 1 })
+        .eq("id", post_id);
+
+      return res.json({ status: "liked" });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
+//Posts
 export const createPost = async (req, res) => {
   try {
     const newPost = req.body;
@@ -245,8 +296,7 @@ export const readComments = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 6;
-    const post_id = Number(req.params.postId)
-    
+    const post_id = Number(req.params.postId);
 
     const truePage = Math.max(1, page);
     const truelimit = Math.max(1, Math.min(100, limit));
@@ -265,7 +315,75 @@ export const readComments = async (req, res) => {
       `,
         { count: "exact" }
       )
-      .eq('post_id', post_id) 
+      .eq("post_id", post_id)
+      .order("created_at", { ascending: false })
+      .range(offset, offset + truelimit - 1);
+
+    const { data: comments, count: totalComments, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    // แปลงข้อมูลให้ตรงกับ format เดิม
+    const formattedComments = comments.map((comment) => ({
+      id: comment.id,
+      comment: comment.comment_text,
+      date: comment.created_at,
+      name: comment.users.name,
+      pic: comment.users.profile_pic,
+    }));
+
+    const results = {
+      totalComments,
+      totalPages: Math.ceil(totalComments / truelimit),
+      currentPage: truePage,
+      limit: truelimit,
+      comments: formattedComments,
+    };
+
+    if (offset + truelimit < totalComments) {
+      results.nextPage = truePage + 1;
+    }
+    if (offset > 0) {
+      results.previousPage = truePage - 1;
+    }
+
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({
+      message: "Server could not get posts because of Supabase error",
+      error: error.message,
+    });
+  }
+};
+
+//GET Likes
+
+export const countLikes = async (req, res) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
+    const post_id = Number(req.params.postId);
+
+    const truePage = Math.max(1, page);
+    const truelimit = Math.max(1, Math.min(100, limit));
+    const offset = (truePage - 1) * truelimit;
+
+    // Base query
+    let query = supabase
+      .from("comments")
+      .select(
+        `
+        id,
+        post_id,
+        comment_text,
+        created_at,
+        users!inner(name, profile_pic)
+      `,
+        { count: "exact" }
+      )
+      .eq("post_id", post_id)
       .order("created_at", { ascending: false })
       .range(offset, offset + truelimit - 1);
 
