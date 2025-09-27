@@ -7,7 +7,7 @@ import {
   updatePost,
   createComment,
   readComments,
-  handleLikes
+  handleLikes,
 } from "../controllers/posts.mjs";
 import { validatePost } from "../middlewares/posts.mjs";
 import { protectAdmin } from "../middlewares/protectRoute.mjs";
