@@ -19,7 +19,7 @@ export const createComment = async (req, res) => {
     const { error } = await supabase.from("comments").insert([
       {
         post_id: parseInt(post_id, 10),
-        user_id: parseInt(user_id, 10),
+        user_id,
         comment_text,
       },
     ]);
@@ -97,6 +97,8 @@ export const createPost = async (req, res) => {
     });
   }
 };
+
+//GET Post
 
 export const readAllPosts = async (req, res) => {
   try {
@@ -232,6 +234,71 @@ export const readById = async (req, res) => {
     console.error("readById error:", error);
     res.status(500).json({
       message: "Server could not get post because database connection",
+      error: error.message,
+    });
+  }
+};
+
+//GET Comments
+
+export const readComments = async (req, res) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
+
+    const truePage = Math.max(1, page);
+    const truelimit = Math.max(1, Math.min(100, limit));
+    const offset = (truePage - 1) * truelimit;
+
+    // Base query
+    let query = supabase
+      .from("comments")
+      .select(
+        `
+        id,
+        comment_text,
+        created_at,
+        users!inner(name, profile_pic)
+      `,
+        { count: "exact" }
+      )
+      .order("created_at", { ascending: false })
+      .range(offset, offset + truelimit - 1);
+
+    const { data: comments, count: totalComments, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    // แปลงข้อมูลให้ตรงกับ format เดิม
+    const formattedComments = comments.map((comment) => ({
+      id: comment.id,
+      comment: comment.comment_text,
+      date: comment.created_at,
+      name: comment.users.name,
+      pic: comment.users.profile_pic,
+    }));
+
+    const results = {
+      totalComments,
+      totalPages: Math.ceil(totalComments / truelimit),
+      currentPage: truePage,
+      limit: truelimit,
+      comments: formattedComments,
+    };
+
+    if (offset + truelimit < totalComments) {
+      results.nextPage = truePage + 1;
+    }
+    if (offset > 0) {
+      results.previousPage = truePage - 1;
+    }
+
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({
+      message: "Server could not get posts because of Supabase error",
       error: error.message,
     });
   }

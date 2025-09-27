@@ -6,6 +6,7 @@ import {
   readById,
   updatePost,
   createComment,
+  readComments,
 } from "../controllers/posts.mjs";
 import { validatePost } from "../middlewares/posts.mjs";
 import { protectAdmin } from "../middlewares/protectRoute.mjs";
@@ -24,6 +25,7 @@ postRouter.post(
 //GET
 postRouter.get("/", readAllPosts);
 postRouter.get("/:postId", readById);
+postRouter.get("/:postId/comments", readComments);
 
 //PUT
 postRouter.put(
