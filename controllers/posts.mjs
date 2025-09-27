@@ -245,6 +245,8 @@ export const readComments = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 6;
+    const post_id = Number(req.params.postId)
+    
 
     const truePage = Math.max(1, page);
     const truelimit = Math.max(1, Math.min(100, limit));
@@ -255,13 +257,14 @@ export const readComments = async (req, res) => {
       .from("comments")
       .select(
         `
-        id,
+        id,post_id
         comment_text,
         created_at,
         users!inner(name, profile_pic)
       `,
         { count: "exact" }
       )
+      .eq('post_id', post_id) 
       .order("created_at", { ascending: false })
       .range(offset, offset + truelimit - 1);
 
