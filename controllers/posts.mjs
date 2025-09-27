@@ -12,6 +12,33 @@ const supabase = createClient(
 );
 
 // POST
+export const createComment = async (req, res) => {
+  try {
+    const { post_id, user_id, comment_text } = req.body;
+    await supabase
+      .from("comments")
+      .insert([
+        {
+          post_id: parseInt(post_id, 10),
+          user_id: parseInt(user_id, 10),
+          comment_text: comment_text,
+        },
+      ]);
+
+    if (error) {
+      throw error; 
+    }
+    return res.status(201).json({
+      message: "Created comment successfully",
+    });
+  } catch (error) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Server could not create post",
+      error: err.message,
+    });
+  }
+};
 
 export const createPost = async (req, res) => {
   try {
@@ -100,7 +127,7 @@ export const readAllPosts = async (req, res) => {
 
     //Filter by status
     if (status) {
-      query = query.eq("status_id", status)
+      query = query.eq("status_id", status);
     }
 
     // Filter by keyword (title, content, description)
