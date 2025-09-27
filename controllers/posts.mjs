@@ -257,7 +257,8 @@ export const readComments = async (req, res) => {
       .from("comments")
       .select(
         `
-        id,post_id
+        id,
+        post_id,
         comment_text,
         created_at,
         users!inner(name, profile_pic)
