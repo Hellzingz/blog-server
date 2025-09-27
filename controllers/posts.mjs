@@ -15,27 +15,31 @@ const supabase = createClient(
 export const createComment = async (req, res) => {
   try {
     const { post_id, user_id, comment_text } = req.body;
-    await supabase
-      .from("comments")
-      .insert([
-        {
-          post_id: parseInt(post_id, 10),
-          user_id: parseInt(user_id, 10),
-          comment_text: comment_text,
-        },
-      ]);
+
+    const { error } = await supabase.from("comments").insert([
+      {
+        post_id: parseInt(post_id, 10),
+        user_id: parseInt(user_id, 10),
+        comment_text,
+      },
+    ]);
 
     if (error) {
-      throw error; 
+      console.error("Supabase insert error:", error);
+      return res.status(400).json({
+        message: "Supabase insert failed",
+        error: error.message,
+      });
     }
+
     return res.status(201).json({
       message: "Created comment successfully",
     });
   } catch (error) {
-    console.error(err);
+    console.error("Controller crashed:", error);
     return res.status(500).json({
-      message: "Server could not create post",
-      error: err.message,
+      message: "Server could not create comment",
+      error: error.message,
     });
   }
 };
