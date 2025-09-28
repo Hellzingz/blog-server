@@ -49,19 +49,20 @@ export const createComment = async (req, res) => {
 //Likes
 export const handleLikes = async (req, res) => {
   try {
-    const { post_id, user_id } = req.body;
+    const { user_id } = req.body;
+    const post_id = Number(req.params.postId);
 
     const { data: existing, error: checkError } = await supabase
       .from("likes")
       .select("*")
       .eq("user_id", user_id)
-      .eq("id", Number(post_id))
+      .eq("post_id", post_id)
       .maybeSingle();
 
     const { data: post, error: postError } = await supabase
       .from("posts")
       .select("likes_count")
-      .eq("id", Number(post_id))
+      .eq("id", post_id)
       .single();
 
     if (postError) throw postError;
@@ -72,17 +73,17 @@ export const handleLikes = async (req, res) => {
       await supabase
         .from("posts")
         .update({ likes_count: Math.max(post.likes_count - 1, 0) })
-        .eq("id", Number(post_id));
+        .eq("id", post_id);
       return res.json({ status: "unliked" });
     } else {
       await supabase
         .from("likes")
-        .insert({ user_id, post_id: Number(post_id) });
+        .insert({ user_id, post_id: post_id });
 
       await supabase
         .from("posts")
         .update({ likes_count: post.likes_count + 1 })
-        .eq("id", Number(post_id));
+        .eq("id", post_id);
 
       return res.json({ status: "liked" });
     }
