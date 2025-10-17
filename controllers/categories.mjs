@@ -1,39 +1,23 @@
-import { createClient } from "@supabase/supabase-js";
-
-// ตรวจสอบ environment variables
-if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-  console.error('Error: Supabase environment variables are not set');
-  process.exit(1);
-}
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+import { CategoriesService } from '../services/categoriesService.mjs';
 
 //GET
 
 //READALL
 export const readCategory = async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .order('id', { ascending: true });
-
-    if (error) {
-      console.error("readCategory error:", error);
-      return res.status(500).json({
+    const result = await CategoriesService.getAllCategories();
+    
+    if (result.success) {
+      res.status(200).json(result.data);
+    } else {
+      res.status(500).json({
         message: "Server could not get categories",
-        error: error.message,
+        error: result.error,
       });
     }
-   
-    res.status(200).json(data);
-   
   } catch (err) {
     console.error("readCategory error:", err);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Server could not get categories",
       error: err.message,
     });
@@ -44,28 +28,20 @@ export const readCategory = async (req, res) => {
 export const readByIdCategory = async (req, res) => {
   const { categoryId } = req.params;
   try {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('id', categoryId)
-      .single();
-
-    if (error) {
-      console.error("readByIdCategory error:", error);
-      return res.status(500).json({
+    const result = await CategoriesService.getCategoryById(categoryId);
+    
+    if (result.success) {
+      res.status(200).json(result.data);
+    } else {
+      const statusCode = result.error.includes("not found") ? 404 : 500;
+      res.status(statusCode).json({
         message: "Server could not get category",
-        error: error.message,
+        error: result.error,
       });
     }
-
-    if (!data) {
-      return res.status(404).json({ error: "Category not found" });
-    }
-   
-    res.status(200).json(data);
   } catch (err) {
     console.error("readByIdCategory error:", err);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Server could not get category",
       error: err.message,
     });
@@ -76,44 +52,23 @@ export const readByIdCategory = async (req, res) => {
 export const createCategory = async (req, res) => {
   try {
     const { name } = req.body;
-
-    // validate ขั้นต้น
-    if (!name) {
-      return res.status(400).json({ error: "Name is required" });
-    }
-
-    // ตรวจสอบว่าชื่อซ้ำหรือไม่
-    const { data: existingCategory, error: checkError } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('name', name)
-      .single();
-
-    if (existingCategory) {
-      return res.status(400).json({ error: "Category name already exists" });
-    }
-
-    const { data, error } = await supabase
-      .from('categories')
-      .insert([{ name: name }])
-      .select()
-      .single();
-
-    if (error) {
-      console.error("createCategory error:", error);
-      return res.status(500).json({
+    const result = await CategoriesService.createCategory(name);
+    
+    if (result.success) {
+      res.status(201).json({ 
+        message: result.message,
+        category: result.data 
+      });
+    } else {
+      const statusCode = result.error.includes("required") || result.error.includes("already exists") ? 400 : 500;
+      res.status(statusCode).json({
         message: "Server could not create category",
-        error: error.message,
+        error: result.error,
       });
     }
-
-    return res.status(201).json({ 
-      message: "Created category successfully",
-      category: data 
-    });
   } catch (err) {
     console.error("createCategory error:", err);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Server could not create category",
       error: err.message,
     });
@@ -125,57 +80,24 @@ export const updateCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
     const { name } = req.body;
-
-    // validate ขั้นต้น
-    if (!name) {
-      return res.status(400).json({ error: "Name is required" });
-    }
-
-    // ตรวจสอบว่ามี ID ที่จะอัพเดทหรือไม่
-    const { data: existingCategory, error: checkError } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('id', categoryId)
-      .single();
-
-    if (checkError || !existingCategory) {
-      return res.status(404).json({ error: "Category not found" });
-    }
-
-    // ตรวจสอบชื่อซ้ำ
-    const { data: duplicateCheck, error: duplicateError } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('name', name)
-      .neq('id', categoryId)
-      .single();
-
-    if (duplicateCheck) {
-      return res.status(400).json({ error: "Category name already exists" });
-    }
-
-    const { data, error } = await supabase
-      .from('categories')
-      .update({ name: name })
-      .eq('id', categoryId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error("updateCategory error:", error);
-      return res.status(500).json({
+    const result = await CategoriesService.updateCategory(categoryId, name);
+    
+    if (result.success) {
+      res.status(200).json({
+        message: result.message,
+        category: result.data,
+      });
+    } else {
+      const statusCode = result.error.includes("required") || result.error.includes("already exists") ? 400 : 
+                        result.error.includes("not found") ? 404 : 500;
+      res.status(statusCode).json({
         message: "Server could not update category",
-        error: error.message,
+        error: result.error,
       });
     }
-
-    return res.status(200).json({
-      message: "Updated category successfully",
-      category: data,
-    });
   } catch (err) {
     console.error("updateCategory error:", err);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Server could not update category",
       error: err.message,
     });
@@ -186,24 +108,19 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
-
-    const { error } = await supabase
-      .from('categories')
-      .delete()
-      .eq('id', categoryId);
-
-    if (error) {
-      console.error("deleteCategory error:", error);
-      return res.status(500).json({
+    const result = await CategoriesService.deleteCategory(categoryId);
+    
+    if (result.success) {
+      res.status(200).json({ message: result.message });
+    } else {
+      res.status(500).json({
         message: "Server could not delete category",
-        error: error.message,
+        error: result.error,
       });
     }
-
-    return res.status(200).json({ message: "Deleted category successfully" });
   } catch (err) {
     console.error("deleteCategory error:", err);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Server could not delete category",
       error: err.message,
     });
