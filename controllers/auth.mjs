@@ -1,4 +1,4 @@
-import { AuthService } from '../services/authService.mjs';
+import * as AuthService from '../services/authService.mjs';
 
 //REGISTER
 export const register = async (req, res) => {
@@ -100,10 +100,10 @@ export const resetPassword = async (req, res) => {
 //UPDATE_PROFILE_PIC
 export const updateProfilePic = async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  const { name, username } = req.body;
+  const { name, username, bio } = req.body;
 
   try {
-    const result = await AuthService.updateProfile(token, name, username, req.imageUrl);
+    const result = await AuthService.updateProfile(token, name, username, bio, req.imageUrl);
     
     if (result.success) {
       res.status(200).json({

@@ -1,4 +1,4 @@
-import { CategoriesService } from '../services/categoriesService.mjs';
+import * as CategoriesService from '../services/categoriesService.mjs';
 
 //GET
 
