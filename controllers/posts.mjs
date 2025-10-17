@@ -1,4 +1,4 @@
-import { PostsService } from '../services/postsService.mjs';
+import * as PostsService from '../services/postsService.mjs';
 
 // POST
 
@@ -119,6 +119,27 @@ export const readById = async (req, res) => {
     console.error("readById error:", error);
     res.status(500).json({
       message: "Server could not get post because database connection",
+      error: error.message,
+    });
+  }
+};
+
+//GET Post Titles
+
+export const getPostTitles = async (req, res) => {
+  try {
+    const result = await PostsService.getPostTitles();
+    if (result.success) {
+      res.status(200).json(result.data);
+    } else {
+      res.status(500).json({
+        message: "Server could not get post titles because database connection",
+        error: result.error,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Server could not get post titles because database connection",
       error: error.message,
     });
   }
