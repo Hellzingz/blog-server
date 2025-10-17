@@ -8,6 +8,7 @@ import {
   createComment,
   readComments,
   handleLikes,
+  getPostTitles,
 } from "../controllers/posts.mjs";
 import { validatePost } from "../middlewares/posts.mjs";
 import { protectAdmin } from "../middlewares/protectRoute.mjs";
@@ -26,6 +27,7 @@ postRouter.post(
 
 //GET
 postRouter.get("/", readAllPosts);
+postRouter.get("/titles", getPostTitles);
 postRouter.get("/:postId", readById);
 postRouter.get("/:postId/comments", readComments);
 
