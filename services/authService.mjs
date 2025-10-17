@@ -1,0 +1,207 @@
+import { AuthRepository } from '../repositories/authRepository.mjs';
+
+export class AuthService {
+  // ลงทะเบียนผู้ใช้ใหม่
+  static async register(email, password, username, name) {
+    try {
+      // ตรวจสอบว่า username ซ้ำหรือไม่
+      const { data: existingUser, error: usernameError } = await AuthRepository.checkUsernameExists(username);
+      
+      if (usernameError) {
+        throw new Error("Database error during username check");
+      }
+
+      if (existingUser && existingUser.length > 0) {
+        throw new Error("This username is already taken");
+      }
+
+      // สร้างผู้ใช้ใน Supabase Auth
+      const { data: authData, error: supabaseError } = await AuthRepository.createAuthUser(email, password);
+      
+      if (supabaseError) {
+        if (supabaseError.code === "user_already_exists") {
+          throw new Error("User with this email already exists");
+        }
+        throw new Error("Failed to create user. Please try again.");
+      }
+
+      const supabaseUserId = authData.user.id;
+
+      // เพิ่มข้อมูลผู้ใช้ในตาราง users
+      const { data: newUser, error: insertError } = await AuthRepository.createUserProfile({
+        id: supabaseUserId,
+        username: username,
+        name: name,
+        role: "user"
+      });
+
+      if (insertError) {
+        throw new Error("Failed to create user profile");
+      }
+
+      return {
+        success: true,
+        message: "User created successfully",
+        user: newUser
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // เข้าสู่ระบบ
+  static async login(email, password) {
+    try {
+      const { data, error } = await AuthRepository.signIn(email, password);
+      
+      if (error) {
+        if (error.code === "invalid_credentials" || error.message.includes("Invalid login credentials")) {
+          throw new Error("Your password is incorrect or this email doesn't exist");
+        }
+        throw new Error(error.message);
+      }
+
+      return {
+        success: true,
+        message: "Signed in successfully",
+        access_token: data.session.access_token
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // ดึงข้อมูลผู้ใช้
+  static async getUser(token) {
+    try {
+      if (!token) {
+        throw new Error("Unauthorized: Token missing");
+      }
+
+      // ดึงข้อมูลผู้ใช้จาก Supabase
+      const { data, error } = await AuthRepository.getUserFromToken(token);
+      if (error) {
+        throw new Error("Unauthorized or token expired");
+      }
+
+      const supabaseUserId = data.user.id;
+      
+      // ดึงข้อมูลผู้ใช้จากฐานข้อมูล
+      const { data: userData, error: userError } = await AuthRepository.getUserById(supabaseUserId);
+
+      if (userError || !userData) {
+        throw new Error("User not found in database");
+      }
+
+      return {
+        success: true,
+        user: {
+          id: data.user.id,
+          email: data.user.email,
+          username: userData.username,
+          name: userData.name,
+          role: userData.role,
+          profilePic: userData.profile_pic,
+        }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // รีเซ็ตรหัสผ่าน
+  static async resetPassword(token, oldPassword, newPassword) {
+    try {
+      if (!token) {
+        throw new Error("Unauthorized: Token missing");
+      }
+
+      if (!newPassword) {
+        throw new Error("New password is required");
+      }
+
+      // ตรวจสอบ token
+      const { data: userData, error: userError } = await AuthRepository.getUserFromToken(token);
+      if (userError) {
+        throw new Error("Unauthorized: Invalid token");
+      }
+
+      // ตรวจสอบรหัสผ่านเดิม
+      const { error: loginError } = await AuthRepository.verifyPassword(userData.user.email, oldPassword);
+      if (loginError) {
+        throw new Error("Invalid old password");
+      }
+
+      // อัปเดตรหัสผ่าน
+      const { data, error } = await AuthRepository.updatePassword(newPassword);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return {
+        success: true,
+        message: "Password updated successfully",
+        user: data.user
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // อัปเดตโปรไฟล์
+  static async updateProfile(token, name, username, imageUrl) {
+    try {
+      if (!token) {
+        throw new Error("Unauthorized: Token missing");
+      }
+
+      // ตรวจสอบ token
+      const { data: userData, error: userError } = await AuthRepository.getUserFromToken(token);
+      if (userError) {
+        throw new Error("Unauthorized: Invalid token");
+      }
+
+      const supabaseUserId = userData.user.id;
+      
+      // อัปเดตข้อมูลผู้ใช้
+      const { data: updatedUser, error: updateError } = await AuthRepository.updateUserProfile(supabaseUserId, {
+        profile_pic: imageUrl,
+        name: name,
+        username: username
+      });
+
+      if (updateError || !updatedUser) {
+        throw new Error("User not found");
+      }
+
+      return {
+        success: true,
+        message: "Profile updated successfully",
+        user: {
+          id: updatedUser.id,
+          username: updatedUser.username,
+          name: updatedUser.name,
+          role: updatedUser.role,
+          profilePic: updatedUser.profile_pic,
+        }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+}

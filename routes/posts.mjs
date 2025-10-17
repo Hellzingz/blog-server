@@ -7,6 +7,7 @@ import {
   updatePost,
   createComment,
   readComments,
+  handleLikes,
 } from "../controllers/posts.mjs";
 import { validatePost } from "../middlewares/posts.mjs";
 import { protectAdmin } from "../middlewares/protectRoute.mjs";
@@ -16,6 +17,7 @@ const postRouter = Router();
 
 //POST
 postRouter.post("/:postId/comments", createComment);
+postRouter.post("/:postId/likes", handleLikes);
 postRouter.post(
   "/",
   [protectAdmin, imageFileUpload, uploadToSupabase, validatePost],
