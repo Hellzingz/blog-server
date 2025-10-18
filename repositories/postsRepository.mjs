@@ -39,9 +39,9 @@ export async function getAllPosts(options = {}) {
     .order("date", { ascending: false })
     .range(offset, offset + truelimit - 1);
 
-  // Filter by category
-  if (category && category.trim() !== "") {
-    query = query.ilike("categories.name", `%${category}%`);
+  // Filter by category (by ID)
+  if (category) {
+    query = query.eq("category_id", category);
   }
 
   // Filter by status
