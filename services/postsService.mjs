@@ -50,7 +50,7 @@ export async function getAllPosts(queryParams) {
   try {
     const page = Number(queryParams.page) || 1;
     const limit = Number(queryParams.limit) || 6;
-    const serchId = Number(queryParams.serchId) || "";
+    const searchId = Number(queryParams.searchId) || "";
     const category = queryParams.category || "";
     const status = Number(queryParams.status) || "";
 
@@ -63,7 +63,7 @@ export async function getAllPosts(queryParams) {
     } = await PostsRepository.getAllPosts({
       page,
       limit,
-      serchId,
+      searchId,
       category,
       status,
     });
