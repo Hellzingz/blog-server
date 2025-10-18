@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase.mjs';
+import { supabase } from "../config/supabase.mjs";
 
 // สร้างโพสต์ใหม่
 export async function createPost(postData) {
@@ -6,7 +6,7 @@ export async function createPost(postData) {
     .from("posts")
     .insert([postData])
     .select("id");
-  
+
   return { data, error };
 }
 
@@ -16,35 +16,14 @@ export async function getAllPosts(options = {}) {
     page = 1,
     limit = 6,
     searchId = "",
+    keyword = "",
     category = "",
-    status = ""
+    status = "",
   } = options;
 
   const truePage = Math.max(1, page);
   const truelimit = Math.max(1, Math.min(100, limit));
   const offset = (truePage - 1) * truelimit;
-
-  if (searchId) {
-    const { data, error } = await supabase
-      .from("posts")
-      .select(
-        `
-        id, image, title, description, date, content, likes_count,
-        categories!inner(id, name),
-        statuses(id, status)
-      `
-      )
-      .eq("id", searchId)
-      .single();
-    
-    return { 
-      data: data ? [data] : [], 
-      count: data ? 1 : 0, 
-      error, 
-      truePage: 1, 
-      truelimit: 1 
-    };
-  }
 
   // Base query
   let query = supabase
@@ -70,6 +49,17 @@ export async function getAllPosts(options = {}) {
     query = query.eq("status_id", status);
   }
 
+  // Filter by serchId
+  if (searchId) {
+    query = query.eq("id", searchId);
+  }
+
+  // Filter by keyword
+  if (keyword) {
+    query = query.or(
+      `title.ilike.%${keyword}%,content.ilike.%${keyword}%,description.ilike.%${keyword}%`
+    );
+  }
 
   const { data, count, error } = await query;
   return { data, count, error, truePage, truelimit };
@@ -94,7 +84,7 @@ export async function getPostById(postId) {
     )
     .eq("id", postId)
     .single();
-  
+
   return { data, error };
 }
 
@@ -105,7 +95,7 @@ export async function checkPostExists(postId) {
     .select("id")
     .eq("id", postId)
     .single();
-  
+
   return { data, error };
 }
 
@@ -117,26 +107,21 @@ export async function updatePost(postId, updateData) {
     .eq("id", postId)
     .select()
     .single();
-  
+
   return { data, error };
 }
 
 // ลบโพสต์
 export async function deletePost(postId) {
-  const { error } = await supabase
-    .from("posts")
-    .delete()
-    .eq("id", postId);
-  
+  const { error } = await supabase.from("posts").delete().eq("id", postId);
+
   return { error };
 }
 
 // สร้างคอมเมนต์
 export async function createComment(commentData) {
-  const { error } = await supabase
-    .from("comments")
-    .insert([commentData]);
-  
+  const { error } = await supabase.from("comments").insert([commentData]);
+
   return { error };
 }
 
@@ -174,7 +159,7 @@ export async function checkLike(userId, postId) {
     .eq("user_id", userId)
     .eq("post_id", postId)
     .maybeSingle();
-  
+
   return { data, error };
 }
 
@@ -185,17 +170,14 @@ export async function getPostForLike(postId) {
     .select("likes_count")
     .eq("id", postId)
     .single();
-  
+
   return { data, error };
 }
 
 // ลบ like
 export async function removeLike(likeId) {
-  const { error } = await supabase
-    .from("likes")
-    .delete()
-    .eq("id", likeId);
-  
+  const { error } = await supabase.from("likes").delete().eq("id", likeId);
+
   return { error };
 }
 
@@ -204,7 +186,7 @@ export async function addLike(userId, postId) {
   const { error } = await supabase
     .from("likes")
     .insert({ user_id: userId, post_id: postId });
-  
+
   return { error };
 }
 
@@ -214,7 +196,7 @@ export async function updateLikesCount(postId, likesCount) {
     .from("posts")
     .update({ likes_count: likesCount })
     .eq("id", postId);
-  
+
   return { error };
 }
 
@@ -223,6 +205,6 @@ export async function getPostTitles() {
   const { data, error } = await supabase
     .from("posts")
     .select("id, title")
-    .order("date", { ascending: false });    
+    .order("date", { ascending: false });
   return { data, error };
 }

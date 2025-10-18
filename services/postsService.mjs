@@ -51,6 +51,7 @@ export async function getAllPosts(queryParams) {
     const page = Number(queryParams.page) || 1;
     const limit = Number(queryParams.limit) || 6;
     const searchId = Number(queryParams.searchId) || "";
+    const keyword = queryParams.keyword || "";
     const category = queryParams.category || "";
     const status = Number(queryParams.status) || "";
 
@@ -64,6 +65,7 @@ export async function getAllPosts(queryParams) {
       page,
       limit,
       searchId,
+      keyword,
       category,
       status,
     });
