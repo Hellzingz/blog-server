@@ -15,7 +15,7 @@ export async function getAllPosts(options = {}) {
   const {
     page = 1,
     limit = 6,
-    keyword = "",
+    serchId = "",
     category = "",
     status = ""
   } = options;
@@ -48,11 +48,9 @@ export async function getAllPosts(options = {}) {
     query = query.eq("status_id", status);
   }
 
-  // Filter by keyword (title, content, description)
-  if (keyword) {
-    query = query.or(
-      `title.ilike.%${keyword}%,content.ilike.%${keyword}%,description.ilike.%${keyword}%`
-    );
+  // Filter by serchId
+  if (serchId) {
+    query = query.eq("id", serchId);
   }
 
   const { data, count, error } = await query;

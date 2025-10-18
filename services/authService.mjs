@@ -104,6 +104,7 @@ export async function getUser(token) {
         id: data.user.id,
         email: data.user.email,
         username: userData.username,
+        bio: userData.bio,
         name: userData.name,
         role: userData.role,
         profilePic: userData.profile_pic,
