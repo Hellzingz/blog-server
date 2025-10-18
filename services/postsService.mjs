@@ -346,9 +346,10 @@ export async function handleLikes(userId, postId) {
 }
 
 //GET Post Titles
-export async function getPostTitles() {
+export async function getPostTitles(status) {
+  const statusId = parseInt(status);
   try {
-    const { data, error } = await PostsRepository.getPostTitles();
+    const { data, error } = await PostsRepository.getPostTitles(statusId);
     if (error) {
       throw new Error("Server could not get post titles because database connection");
     }

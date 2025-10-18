@@ -40,7 +40,7 @@ export async function getAllPosts(options = {}) {
     .range(offset, offset + truelimit - 1);
 
   // Filter by category
-  if (category) {
+  if (category && category.trim() !== "") {
     query = query.ilike("categories.name", `%${category}%`);
   }
 
@@ -55,7 +55,7 @@ export async function getAllPosts(options = {}) {
   }
 
   // Filter by keyword
-  if (keyword) {
+  if (keyword && keyword.trim() !== "") {
     query = query.or(
       `title.ilike.%${keyword}%,content.ilike.%${keyword}%,description.ilike.%${keyword}%`
     );
@@ -201,10 +201,11 @@ export async function updateLikesCount(postId, likesCount) {
 }
 
 //GET Post Titles
-export async function getPostTitles() {
+export async function getPostTitles(statusId) {
   const { data, error } = await supabase
     .from("posts")
     .select("id, title")
+    .eq("status_id", statusId)
     .order("date", { ascending: false });
   return { data, error };
 }

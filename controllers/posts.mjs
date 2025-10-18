@@ -127,8 +127,9 @@ export const readById = async (req, res) => {
 //GET Post Titles
 
 export const getPostTitles = async (req, res) => {
+  const { status } = req.query;
   try {
-    const result = await PostsService.getPostTitles();
+    const result = await PostsService.getPostTitles(status);
     if (result.success) {
       res.status(200).json(result.data);
     } else {
