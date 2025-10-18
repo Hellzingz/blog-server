@@ -5,8 +5,8 @@ import { createCategory, deleteCategory, updateCategory, readCategory, readByIdC
 const categoryRouter = Router()
 
 categoryRouter.post('/',protectAdmin, createCategory)
-categoryRouter.get('/',protectAdmin, readCategory)
-categoryRouter.get('/:categoryId',protectAdmin, readByIdCategory)
+categoryRouter.get('/', readCategory)
+categoryRouter.get('/:categoryId', readByIdCategory)
 categoryRouter.delete('/:categoryId', protectAdmin, deleteCategory)
 categoryRouter.put('/:categoryId', protectAdmin, updateCategory)
 
