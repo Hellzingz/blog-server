@@ -15,33 +15,10 @@ export async function getAllPosts(options = {}) {
   const {
     page = 1,
     limit = 6,
-    serchId = "",
+    searchId = "",
     category = "",
     status = ""
   } = options;
-
-  // ถ้ามี serchId ให้ค้นหาเฉพาะ ID นั้น
-  if (serchId) {
-    const { data, error } = await supabase
-      .from("posts")
-      .select(
-        `
-        id, image, title, description, date, content, likes_count,
-        categories!inner(id, name),
-        statuses(id, status)
-      `
-      )
-      .eq("id", serchId)
-      .single();
-    
-    return { 
-      data: data ? [data] : [], 
-      count: data ? 1 : 0, 
-      error, 
-      truePage: 1, 
-      truelimit: 1 
-    };
-  }
 
   const truePage = Math.max(1, page);
   const truelimit = Math.max(1, Math.min(100, limit));
@@ -69,6 +46,11 @@ export async function getAllPosts(options = {}) {
   // Filter by status
   if (status) {
     query = query.eq("status_id", status);
+  }
+
+  // Filter by serchId
+  if (searchId) {
+    query = query.eq("id", searchId);
   }
 
   const { data, count, error } = await query;
