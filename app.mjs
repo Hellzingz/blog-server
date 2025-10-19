@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import postRouter from "./routes/posts.mjs";
 import authRouter from "./routes/auth.mjs";
 import categoryRouter from "./routes/categories.mjs";
+import notificationRouter from "./routes/notification.mjs";
 
 dotenv.config();
 const app = express();
@@ -16,6 +17,7 @@ app.use(cors());
 app.use('/posts', postRouter);
 app.use('/auth', authRouter);
 app.use('/categories', categoryRouter);
+app.use('/notification', notificationRouter);
 
 // Optional: root route for test
 app.get("/", (req, res) => {

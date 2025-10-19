@@ -81,7 +81,7 @@ export async function getPostById(postId) {
       likes_count,
       categories!inner(name),
       statuses!inner(status),
-      users!inner(id, name, profile_pic)
+      users!inner(id, name, profile_pic, bio)
     `
     )
     .eq("id", postId)
