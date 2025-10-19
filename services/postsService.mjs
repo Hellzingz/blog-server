@@ -126,12 +126,7 @@ export async function getPostById(postId) {
     const { data, error } = await PostsRepository.getPostById(postId);
 
     if (error) {
-      throw new Error("Server could not get post because database connection");
-    }
-
-    // ตรวจสอบว่ามีข้อมูลครบถ้วน
-    if (!data || !data.categories || !data.statuses || !data.users) {
-      throw new Error("Post data is incomplete");
+      throw new Error("Server could not get post because service error");
     }
 
     const formattedData = {
@@ -144,6 +139,7 @@ export async function getPostById(postId) {
         id: data.users.id,
         name: data.users.name,
         profile_pic: data.users.profile_pic,
+        bio: data.users.bio,
       },
       date: data.date,
       content: data.content,

@@ -123,14 +123,14 @@ export const readById = async (req, res) => {
       res.status(200).json(result.data);
     } else {
       res.status(500).json({
-        message: "Server could not get post because database connection",
+        message: "Server could not get post because controller error",
         error: result.error,
       });
     }
   } catch (error) {
     console.error("readById error:", error);
     res.status(500).json({
-      message: "Server could not get post because database connection",
+      message: "Server could not get post because controller error",
       error: error.message,
     });
   }
