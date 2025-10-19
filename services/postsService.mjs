@@ -129,6 +129,11 @@ export async function getPostById(postId) {
       throw new Error("Server could not get post because database connection");
     }
 
+    // ตรวจสอบว่ามีข้อมูลครบถ้วน
+    if (!data || !data.categories || !data.statuses || !data.users) {
+      throw new Error("Post data is incomplete");
+    }
+
     const formattedData = {
       id: data.id,
       title: data.title,

@@ -80,7 +80,7 @@ export async function getPostById(postId) {
       content,
       likes_count,
       categories!inner(name),
-      statuses!inner(status)
+      statuses!inner(status),
       users!inner(id, name, profile_pic)
     `
     )
