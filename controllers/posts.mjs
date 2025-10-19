@@ -61,7 +61,8 @@ export const createPost = async (req, res) => {
   try {
     const newPost = req.body;
     const imageUrl = req.imageUrl;
-    const result = await PostsService.createPost(newPost, imageUrl);
+    const user_id = req.user.id; // ดึง user_id จาก protectAdmin middleware
+    const result = await PostsService.createPost(newPost, imageUrl, user_id);
 
     if (result.success) {
       res.status(201).json({

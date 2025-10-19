@@ -3,7 +3,7 @@ import * as NotificationService from "./notification.mjs";
 import * as AuthRepository from "../repositories/authRepository.mjs";
 
 // CREATE Post
-export async function createPost(postData, imageUrl) {
+export async function createPost(postData, imageUrl, user_id) {
   try {
     if (!postData.title) {
       throw new Error("title is required");
@@ -25,6 +25,7 @@ export async function createPost(postData, imageUrl) {
       description: postData.description || null,
       content: postData.content || null,
       status_id: parseInt(postData.status_id),
+      user_id: user_id, // เพิ่ม user_id
     };
 
     const { data, error } = await PostsRepository.createPost(newPost);
@@ -83,7 +84,11 @@ export async function getAllPosts(queryParams) {
       description: post.description,
       date: post.date,
       content: post.content,
-      user_id: post.user_id,
+      user: {
+        id: post.users.id,
+        name: post.users.name,
+        profile_pic: post.users.profile_pic,
+      },
       status: post.statuses.status,
       likes_count: post.likes_count,
     }));
@@ -130,7 +135,11 @@ export async function getPostById(postId) {
       image: data.image,
       category: data.categories.name,
       description: data.description,
-      user_id: data.user_id,
+      user: {
+        id: data.users.id,
+        name: data.users.name,
+        profile_pic: data.users.profile_pic,
+      },
       date: data.date,
       content: data.content,
       status: data.statuses.status,
