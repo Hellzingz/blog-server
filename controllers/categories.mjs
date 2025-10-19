@@ -2,7 +2,7 @@ import * as CategoriesService from '../services/categoriesService.mjs';
 
 //GET
 
-//READALL
+// GET All Categories
 export const readCategory = async (req, res) => {
   try {
     const result = await CategoriesService.getAllCategories();
@@ -24,7 +24,7 @@ export const readCategory = async (req, res) => {
   }
 };
 
-//READBYID
+// GET Category by ID
 export const readByIdCategory = async (req, res) => {
   const { categoryId } = req.params;
   try {
@@ -48,7 +48,7 @@ export const readByIdCategory = async (req, res) => {
   }
 };
 
-//POST
+// CREATE Category
 export const createCategory = async (req, res) => {
   try {
     const { name } = req.body;
@@ -75,7 +75,7 @@ export const createCategory = async (req, res) => {
   }
 };
 
-//PUT
+// UPDATE Category
 export const updateCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
@@ -104,7 +104,7 @@ export const updateCategory = async (req, res) => {
   }
 };
 
-//DELETE
+// DELETE Category
 export const deleteCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;

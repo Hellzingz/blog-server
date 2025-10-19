@@ -1,6 +1,6 @@
 import { supabase } from '../config/supabase.mjs';
 
-// ดึงหมวดหมู่ทั้งหมด
+// GET All Categories
 export async function getAllCategories() {
   const { data, error } = await supabase
     .from('categories')
@@ -10,7 +10,7 @@ export async function getAllCategories() {
   return { data, error };
 }
 
-// ดึงหมวดหมู่ตาม ID
+// GET Category by ID
 export async function getCategoryById(categoryId) {
   const { data, error } = await supabase
     .from('categories')
@@ -21,7 +21,7 @@ export async function getCategoryById(categoryId) {
   return { data, error };
 }
 
-// ตรวจสอบชื่อหมวดหมู่ซ้ำ
+// CHECK Category Name Exists
 export async function checkCategoryNameExists(name) {
   const { data, error } = await supabase
     .from('categories')
@@ -32,7 +32,7 @@ export async function checkCategoryNameExists(name) {
   return { data, error };
 }
 
-// ตรวจสอบชื่อหมวดหมู่ซ้ำ (ยกเว้น ID ที่ระบุ)
+// CHECK Category Name Exists Excluding ID
 export async function checkCategoryNameExistsExcludingId(name, excludeId) {
   const { data, error } = await supabase
     .from('categories')
@@ -44,7 +44,7 @@ export async function checkCategoryNameExistsExcludingId(name, excludeId) {
   return { data, error };
 }
 
-// สร้างหมวดหมู่ใหม่
+// CREATE Category
 export async function createCategory(name) {
   const { data, error } = await supabase
     .from('categories')
@@ -55,7 +55,7 @@ export async function createCategory(name) {
   return { data, error };
 }
 
-// อัปเดตหมวดหมู่
+// UPDATE Category
 export async function updateCategory(categoryId, name) {
   const { data, error } = await supabase
     .from('categories')
@@ -67,7 +67,7 @@ export async function updateCategory(categoryId, name) {
   return { data, error };
 }
 
-// ลบหมวดหมู่
+// DELETE Category
 export async function deleteCategory(categoryId) {
   const { error } = await supabase
     .from('categories')

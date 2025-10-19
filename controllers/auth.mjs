@@ -48,7 +48,7 @@ export const login = async (req, res) => {
   }
 };
 
-//GETUSER
+// GET User
 export const getUser = async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
 
@@ -72,7 +72,7 @@ export const getUser = async (req, res) => {
   }
 };
 
-//RESET_PASSWORD
+// RESET Password
 export const resetPassword = async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   const { oldPassword, newPassword } = req.body;
@@ -97,13 +97,15 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-//UPDATE_PROFILE_PIC
+// UPDATE Profile
 export const updateProfilePic = async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   const { name, username, bio } = req.body;
 
   try {
-    const result = await AuthService.updateProfile(token, name, username, bio, req.imageUrl);
+    // ถ้าไม่มีรูปใหม่ ส่ง null แทน undefined
+    const imageUrl = req.imageUrl || null;
+    const result = await AuthService.updateProfile(token, name, username, bio, imageUrl);
     
     if (result.success) {
       res.status(200).json({

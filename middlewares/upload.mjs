@@ -27,13 +27,13 @@ export const uploadToSupabase = async (req, res, next) => {
     // ตรวจสอบว่ามีไฟล์ที่อัปโหลดมาหรือไม่
     // req.file จะมีข้อมูลไฟล์ที่ Multer ประมวลผลแล้ว
     if (!req.file) {
-      return res.status(400).json({ error: "imageFile is required" });
+      req.imageUrl = null; // หรือ req.imageUrl = undefined;
+      return next(); // ไปต่อได้เลย
     }
-
     // กำหนดชื่อ bucket ใน Supabase Storage
     // bucket คือ "โฟลเดอร์" ที่เก็บไฟล์ใน Supabase
     const bucketName = "blog-project";
-    
+
     // สร้าง path สำหรับไฟล์ใน bucket
     // - Date.now(): timestamp เพื่อให้ชื่อไฟล์ไม่ซ้ำ
     // - req.file.originalname: ชื่อไฟล์เดิมที่ผู้ใช้อัปโหลด
@@ -49,13 +49,15 @@ export const uploadToSupabase = async (req, res, next) => {
     const { data, error } = await supabase.storage
       .from(bucketName)
       .upload(filePath, req.file.buffer, {
-        contentType: req.file.mimetype,  // กำหนด MIME type ของไฟล์
-        upsert: false,                   // ไม่เขียนทับไฟล์ที่มีอยู่
+        contentType: req.file.mimetype, // กำหนด MIME type ของไฟล์
+        upsert: false, // ไม่เขียนทับไฟล์ที่มีอยู่
       });
 
     // ตรวจสอบ error จากการอัปโหลด
     if (error) {
-      return res.status(500).json({ error: "Upload failed", details: error.message });
+      return res
+        .status(500)
+        .json({ error: "Upload failed", details: error.message });
     }
 
     // สร้าง public URL สำหรับไฟล์ที่อัปโหลดแล้ว
@@ -68,7 +70,7 @@ export const uploadToSupabase = async (req, res, next) => {
 
     // เก็บ public URL ไว้ใน req.imageUrl เพื่อให้ controller ใช้ได้
     req.imageUrl = publicUrl;
-    
+
     // เรียก next() เพื่อไปยัง middleware หรือ controller ถัดไป
     next();
   } catch (err) {

@@ -1,6 +1,6 @@
 import { supabase } from "../config/supabase.mjs";
 
-// สร้างโพสต์ใหม่
+// CREATE Post
 export async function createPost(postData) {
   const { data, error } = await supabase
     .from("posts")
@@ -10,7 +10,7 @@ export async function createPost(postData) {
   return { data, error };
 }
 
-// ดึงโพสต์ทั้งหมด (พร้อม pagination และ filter)
+// GET All Posts
 export async function getAllPosts(options = {}) {
   const {
     page = 1,
@@ -25,7 +25,7 @@ export async function getAllPosts(options = {}) {
   const truelimit = Math.max(1, Math.min(100, limit));
   const offset = (truePage - 1) * truelimit;
 
-  // Base query
+  // Query
   let query = supabase
     .from("posts")
     .select(
@@ -39,7 +39,7 @@ export async function getAllPosts(options = {}) {
     .order("date", { ascending: false })
     .range(offset, offset + truelimit - 1);
 
-  // Filter by category (by ID)
+  // Filter by category
   if (category) {
     query = query.eq("category_id", category);
   }
@@ -65,7 +65,7 @@ export async function getAllPosts(options = {}) {
   return { data, count, error, truePage, truelimit };
 }
 
-// ดึงโพสต์ตาม ID
+// GET Post by ID
 export async function getPostById(postId) {
   const { data, error } = await supabase
     .from("posts")
@@ -88,7 +88,7 @@ export async function getPostById(postId) {
   return { data, error };
 }
 
-// ตรวจสอบว่าโพสต์มีอยู่หรือไม่
+// CHECK Post Exists
 export async function checkPostExists(postId) {
   const { data, error } = await supabase
     .from("posts")
@@ -99,7 +99,7 @@ export async function checkPostExists(postId) {
   return { data, error };
 }
 
-// อัปเดตโพสต์
+// UPDATE Post
 export async function updatePost(postId, updateData) {
   const { data, error } = await supabase
     .from("posts")
@@ -111,21 +111,21 @@ export async function updatePost(postId, updateData) {
   return { data, error };
 }
 
-// ลบโพสต์
+// DELETE Post
 export async function deletePost(postId) {
   const { error } = await supabase.from("posts").delete().eq("id", postId);
 
   return { error };
 }
 
-// สร้างคอมเมนต์
+// CREATE Comment
 export async function createComment(commentData) {
   const { error } = await supabase.from("comments").insert([commentData]);
 
   return { error };
 }
 
-// ดึงคอมเมนต์ (พร้อม pagination)
+// GET Comments
 export async function getComments(postId, options = {}) {
   const { page = 1, limit = 6 } = options;
   const truePage = Math.max(1, page);
@@ -151,7 +151,7 @@ export async function getComments(postId, options = {}) {
   return { data, count, error, truePage, truelimit };
 }
 
-// ตรวจสอบการ like
+// CHECK Like
 export async function checkLike(userId, postId) {
   const { data, error } = await supabase
     .from("likes")
@@ -163,7 +163,7 @@ export async function checkLike(userId, postId) {
   return { data, error };
 }
 
-// ดึงข้อมูลโพสต์สำหรับ like
+// GET Post for Like
 export async function getPostForLike(postId) {
   const { data, error } = await supabase
     .from("posts")
@@ -174,14 +174,14 @@ export async function getPostForLike(postId) {
   return { data, error };
 }
 
-// ลบ like
+// REMOVE Like
 export async function removeLike(likeId) {
   const { error } = await supabase.from("likes").delete().eq("id", likeId);
 
   return { error };
 }
 
-// เพิ่ม like
+// ADD Like
 export async function addLike(userId, postId) {
   const { error } = await supabase
     .from("likes")
@@ -190,7 +190,7 @@ export async function addLike(userId, postId) {
   return { error };
 }
 
-// อัปเดตจำนวน like
+// UPDATE Likes Count
 export async function updateLikesCount(postId, likesCount) {
   const { error } = await supabase
     .from("posts")
