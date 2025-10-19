@@ -32,7 +32,8 @@ export async function getAllPosts(options = {}) {
       `
       id, image, title, description, date, content, likes_count,
       categories!inner(id, name),
-      statuses(id, status)
+      statuses(id, status),
+      users!inner(id, name, profile_pic)
     `,
       { count: "exact" }
     )
@@ -80,6 +81,7 @@ export async function getPostById(postId) {
       likes_count,
       categories!inner(name),
       statuses!inner(status)
+      users!inner(id, name, profile_pic)
     `
     )
     .eq("id", postId)

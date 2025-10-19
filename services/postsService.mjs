@@ -1,4 +1,6 @@
 import * as PostsRepository from "../repositories/postsRepository.mjs";
+import * as NotificationService from "./notification.mjs";
+import * as AuthRepository from "../repositories/authRepository.mjs";
 
 // CREATE Post
 export async function createPost(postData, imageUrl) {
@@ -81,6 +83,7 @@ export async function getAllPosts(queryParams) {
       description: post.description,
       date: post.date,
       content: post.content,
+      user_id: post.user_id,
       status: post.statuses.status,
       likes_count: post.likes_count,
     }));
@@ -127,6 +130,7 @@ export async function getPostById(postId) {
       image: data.image,
       category: data.categories.name,
       description: data.description,
+      user_id: data.user_id,
       date: data.date,
       content: data.content,
       status: data.statuses.status,
@@ -221,6 +225,30 @@ export async function createComment(postId, userId, commentText) {
 
     if (error) {
       throw new Error("Supabase insert failed");
+    }
+
+    // สร้าง notification สำหรับ comment
+    try {
+      // ดึงข้อมูล post เพื่อหา owner
+      const { data: post, error: postError } = await PostsRepository.getPostForLike(postId);
+      
+      if (!postError && post && post.user_id !== userId) {
+        // ดึงข้อมูล user ที่ comment เพื่อสร้าง message
+        const { data: user, error: userError } = await AuthRepository.getUserById(userId);
+        
+        if (!userError && user) {
+          await NotificationService.createNotification({
+            type: "comment",
+            target_type: "post",
+            target_id: postId,
+            recipient_id: post.user_id, // ผู้เขียน post
+            actor_id: userId, // ผู้ที่ comment
+          });
+        }
+      }
+    } catch (notificationError) {
+      console.error("Failed to create comment notification:", notificationError);
+      // ไม่ throw error เพื่อไม่ให้กระทบการ comment
     }
 
     return {
@@ -323,6 +351,27 @@ export async function handleLikes(userId, postId) {
     } else {
       await PostsRepository.addLike(userId, postId);
       await PostsRepository.updateLikesCount(postId, post.likes_count + 1);
+
+      // สร้าง notification สำหรับ like (เฉพาะตอน like)
+      try {
+        if (post.user_id !== userId) {
+          // ดึงข้อมูล user ที่ like เพื่อสร้าง message
+          const { data: user, error: userError } = await AuthRepository.getUserById(userId);
+          
+          if (!userError && user) {
+            await NotificationService.createNotification({
+              type: "like",
+              target_type: "post",
+              target_id: postId,
+              recipient_id: post.user_id, // ผู้เขียน post
+              actor_id: userId, // ผู้ที่ like
+            });
+          }
+        }
+      } catch (notificationError) {
+        console.error("Failed to create like notification:", notificationError);
+        // ไม่ throw error เพื่อไม่ให้กระทบการ like
+      }
 
       return {
         success: true,
