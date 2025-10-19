@@ -1,13 +1,16 @@
-import * as PostsService from '../services/postsService.mjs';
+import * as PostsService from "../services/postsService.mjs";
 
-// POST
+// POST Comment
 
-//Comments
 export const createComment = async (req, res) => {
   try {
     const { post_id, user_id, comment_text } = req.body;
-    const result = await PostsService.createComment(post_id, user_id, comment_text);
-    
+    const result = await PostsService.createComment(
+      post_id,
+      user_id,
+      comment_text
+    );
+
     if (result.success) {
       res.status(201).json({
         message: result.message,
@@ -27,13 +30,14 @@ export const createComment = async (req, res) => {
   }
 };
 
-//Likes
+// HANDLE Likes
+
 export const handleLikes = async (req, res) => {
   try {
     const { user_id } = req.body;
     const post_id = Number(req.params.postId);
     const result = await PostsService.handleLikes(user_id, post_id);
-    
+
     if (result.success) {
       res.json({ status: result.status });
     } else {
@@ -51,20 +55,25 @@ export const handleLikes = async (req, res) => {
   }
 };
 
-//Posts
+// CREATE Post
+
 export const createPost = async (req, res) => {
   try {
     const newPost = req.body;
     const imageUrl = req.imageUrl;
     const result = await PostsService.createPost(newPost, imageUrl);
-    
+
     if (result.success) {
       res.status(201).json({
         message: result.message,
         postId: result.postId,
       });
     } else {
-      const statusCode = result.error.includes("required") || result.error.includes("upload failed") ? 400 : 500;
+      const statusCode =
+        result.error.includes("required") ||
+        result.error.includes("upload failed")
+          ? 400
+          : 500;
       res.status(statusCode).json({
         message: "Server could not create post",
         error: result.error,
@@ -79,12 +88,12 @@ export const createPost = async (req, res) => {
   }
 };
 
-//GET Post
+//GET All Posts
 
 export const readAllPosts = async (req, res) => {
   try {
     const result = await PostsService.getAllPosts(req.query);
-    
+
     if (result.success) {
       res.status(200).json(result.data);
     } else {
@@ -101,12 +110,14 @@ export const readAllPosts = async (req, res) => {
   }
 };
 
+// GET Post by ID
+
 export const readById = async (req, res) => {
   const { postId } = req.params;
 
   try {
     const result = await PostsService.getPostById(postId);
-    
+
     if (result.success) {
       res.status(200).json(result.data);
     } else {
@@ -152,7 +163,7 @@ export const readComments = async (req, res) => {
   try {
     const post_id = Number(req.params.postId);
     const result = await PostsService.getComments(post_id, req.query);
-    
+
     if (result.success) {
       res.status(200).json(result.data);
     } else {
@@ -169,17 +180,25 @@ export const readComments = async (req, res) => {
   }
 };
 
-//PUT
+// UPDATE Post
 
 export const updatePost = async (req, res) => {
   try {
     const { postId } = req.params;
     const { title, category_id, description, content, status_id } = req.body;
     const imageUrl = req.imageUrl;
-    const result = await PostsService.updatePost(postId, {
-      title, category_id, description, content, status_id
-    }, imageUrl);
-    
+    const result = await PostsService.updatePost(
+      postId,
+      {
+        title,
+        category_id,
+        description,
+        content,
+        status_id,
+      },
+      imageUrl
+    );
+
     if (result.success) {
       res.status(200).json({
         message: result.message,
@@ -201,13 +220,13 @@ export const updatePost = async (req, res) => {
   }
 };
 
-//DELETE
+// DELETE Post
 
 export const deleteById = async (req, res) => {
   const { postId } = req.params;
   try {
     const result = await PostsService.deletePost(postId);
-    
+
     if (result.success) {
       res.status(200).json({ message: result.message });
     } else {

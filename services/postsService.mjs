@@ -1,9 +1,8 @@
 import * as PostsRepository from "../repositories/postsRepository.mjs";
 
-// สร้างโพสต์ใหม่
+// CREATE Post
 export async function createPost(postData, imageUrl) {
   try {
-    // ตรวจสอบข้อมูลที่จำเป็น
     if (!postData.title) {
       throw new Error("title is required");
     }
@@ -45,7 +44,7 @@ export async function createPost(postData, imageUrl) {
   }
 }
 
-// ดึงโพสต์ทั้งหมด
+// GET All Posts
 export async function getAllPosts(queryParams) {
   try {
     const page = Number(queryParams.page) || 1;
@@ -74,7 +73,6 @@ export async function getAllPosts(queryParams) {
       throw error;
     }
 
-    // แปลงข้อมูลให้ตรงกับ format เดิม
     const formattedPosts = posts.map((post) => ({
       id: post.id,
       title: post.title,
@@ -114,18 +112,15 @@ export async function getAllPosts(queryParams) {
   }
 }
 
-// ดึงโพสต์ตาม ID
+// GET Post by ID
 export async function getPostById(postId) {
   try {
     const { data, error } = await PostsRepository.getPostById(postId);
 
     if (error) {
-      throw new Error(
-        "Server could not get post because database connection"
-      );
+      throw new Error("Server could not get post because database connection");
     }
 
-    // แปลงข้อมูลให้ตรงกับ format เดิม
     const formattedData = {
       id: data.id,
       title: data.title,
@@ -150,14 +145,12 @@ export async function getPostById(postId) {
   }
 }
 
-// อัปเดตโพสต์
+// UPDATE Post
 export async function updatePost(postId, updateData, imageUrl) {
   try {
     const date = new Date();
-    const { title, category_id, description, content, status_id } =
-      updateData;
+    const { title, category_id, description, content, status_id } = updateData;
 
-    // ตรวจสอบว่าโพสต์มีอยู่หรือไม่
     const { data: existingPost, error: checkError } =
       await PostsRepository.checkPostExists(postId);
 
@@ -165,7 +158,6 @@ export async function updatePost(postId, updateData, imageUrl) {
       throw new Error("Post not found");
     }
 
-    // อัปเดตโพสต์
     const { data, error } = await PostsRepository.updatePost(postId, {
       title: title,
       image: imageUrl,
@@ -193,7 +185,7 @@ export async function updatePost(postId, updateData, imageUrl) {
   }
 }
 
-// ลบโพสต์
+// DELETE Post
 export async function deletePost(postId) {
   try {
     const { error } = await PostsRepository.deletePost(postId);
@@ -216,7 +208,7 @@ export async function deletePost(postId) {
   }
 }
 
-// สร้างคอมเมนต์
+// POST Comment
 export async function createComment(postId, userId, commentText) {
   try {
     const commentData = {
@@ -243,7 +235,7 @@ export async function createComment(postId, userId, commentText) {
   }
 }
 
-// ดึงคอมเมนต์
+// GET Comments
 export async function getComments(postId, queryParams) {
   try {
     const page = Number(queryParams.page) || 1;
@@ -300,7 +292,7 @@ export async function getComments(postId, queryParams) {
   }
 }
 
-// จัดการ like
+// Handle Likes
 export async function handleLikes(userId, postId) {
   try {
     const { data: existing, error: checkError } =
@@ -345,13 +337,15 @@ export async function handleLikes(userId, postId) {
   }
 }
 
-//GET Post Titles
+// GET Post Titles
 export async function getPostTitles(status) {
   const statusId = parseInt(status);
   try {
     const { data, error } = await PostsRepository.getPostTitles(statusId);
     if (error) {
-      throw new Error("Server could not get post titles because database connection");
+      throw new Error(
+        "Server could not get post titles because database connection"
+      );
     }
 
     return {
@@ -364,7 +358,7 @@ export async function getPostTitles(status) {
   } catch (error) {
     return {
       success: false,
-      error: error.message
+      error: error.message,
     };
   }
 }

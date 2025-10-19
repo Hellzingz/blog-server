@@ -1,6 +1,6 @@
 import { supabase } from '../config/supabase.mjs';
 
-// ตรวจสอบ username ซ้ำ
+// CHECK Username Exists
 export async function checkUsernameExists(username) {
   const { data, error } = await supabase
     .from('users')
@@ -10,7 +10,7 @@ export async function checkUsernameExists(username) {
   return { data, error };
 }
 
-// สร้างผู้ใช้ใน Supabase Auth
+// CREATE Auth User
 export async function createAuthUser(email, password) {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -20,7 +20,7 @@ export async function createAuthUser(email, password) {
   return { data, error };
 }
 
-// เพิ่มข้อมูลผู้ใช้ในตาราง users
+// CREATE User Profile
 export async function createUserProfile(userData) {
   const { data, error } = await supabase
     .from('users')
@@ -31,7 +31,7 @@ export async function createUserProfile(userData) {
   return { data, error };
 }
 
-// เข้าสู่ระบบ
+// SIGN IN
 export async function signIn(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -41,13 +41,13 @@ export async function signIn(email, password) {
   return { data, error };
 }
 
-// ดึงข้อมูลผู้ใช้จาก token
+// GET User from Token
 export async function getUserFromToken(token) {
   const { data, error } = await supabase.auth.getUser(token);
   return { data, error };
 }
 
-// ดึงข้อมูลผู้ใช้จากฐานข้อมูล
+// GET User by ID
 export async function getUserById(userId) {
   const { data, error } = await supabase
     .from('users')
@@ -58,7 +58,7 @@ export async function getUserById(userId) {
   return { data, error };
 }
 
-// ตรวจสอบรหัสผ่านเดิม
+// VERIFY Password
 export async function verifyPassword(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -68,7 +68,7 @@ export async function verifyPassword(email, password) {
   return { data, error };
 }
 
-// อัปเดตรหัสผ่าน
+// UPDATE Password
 export async function updatePassword(newPassword) {
   const { data, error } = await supabase.auth.updateUser({
     password: newPassword,
@@ -77,7 +77,7 @@ export async function updatePassword(newPassword) {
   return { data, error };
 }
 
-// อัปเดตโปรไฟล์ผู้ใช้
+// UPDATE User Profile
 export async function updateUserProfile(userId, updateData) {
   const { data, error } = await supabase
     .from('users')
