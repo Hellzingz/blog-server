@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { createNotification, getBroadcastNotifications } from "../controllers/notification.mjs";
+import { createNotification } from "../controllers/notification.mjs";
 import * as NotificationService from "../services/notification.mjs";
 
 const notificationRouter = Router()
