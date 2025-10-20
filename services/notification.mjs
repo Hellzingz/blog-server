@@ -26,12 +26,3 @@ export async function markAsRead(notificationId) {
     throw new Error("Server could not mark notification as read");
   }
 }
-
-export async function getBroadcastNotifications() {
-  try {
-    const result = await NotificationRepository.getBroadcastNotifications();
-    return result;
-  } catch (error) {
-    throw new Error("Server could not get broadcast notifications");
-  }
-}
