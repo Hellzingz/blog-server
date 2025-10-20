@@ -11,37 +11,35 @@ import {
   getPostTitles,
 } from "../controllers/posts.mjs";
 import { validatePost } from "../middlewares/posts.mjs";
+import { validateComment, validatePostId } from "../middlewares/validation.mjs";
 import { protectAdmin } from "../middlewares/protectRoute.mjs";
 import { imageFileUpload, uploadToSupabase } from "../middlewares/upload.mjs";
 
 const postRouter = Router();
 
-//POST
-postRouter.post("/:postId/comments", createComment);
-postRouter.post("/:postId/likes", handleLikes);
+//POST Routes
+postRouter.post("/:postId/comments", validatePostId, validateComment, createComment);
+postRouter.post("/:postId/likes", validatePostId, handleLikes);
 postRouter.post(
   "/",
   [protectAdmin, imageFileUpload, uploadToSupabase, validatePost],
   createPost
 );
 
-//GET
+//GET Routes
 postRouter.get("/", readAllPosts);
 postRouter.get("/titles", getPostTitles);
-postRouter.get("/:postId", readById);
-postRouter.get("/:postId/comments", readComments);
+postRouter.get("/:postId", validatePostId, readById);
+postRouter.get("/:postId/comments", validatePostId, readComments);
 
-//PUT
+//PUT Routes
 postRouter.put(
   "/:postId",
-  protectAdmin,
-  imageFileUpload,
-  uploadToSupabase,
-  validatePost,
+  [protectAdmin, validatePostId, imageFileUpload, uploadToSupabase, validatePost],
   updatePost
 );
 
-//DELETE
-postRouter.delete("/:postId", deleteById);
+//DELETE Routes
+postRouter.delete("/:postId", protectAdmin, validatePostId, deleteById);
 
 export default postRouter;

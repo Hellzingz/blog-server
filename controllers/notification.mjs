@@ -9,6 +9,7 @@ export const createNotification = async (req, res) => {
       recipient_id,       
       actor_id,   
       message,
+      comment_text,
     } = req.body;
 
     // ตรวจสอบข้อมูลที่จำเป็น (recipient_id และ target_id เป็น optional)
@@ -31,13 +32,14 @@ export const createNotification = async (req, res) => {
       type,
       target_type,
       target_id: target_id || null,
-      recipient_id: recipient_id || null, // null = broadcast notification
+      recipient_id: recipient_id || null,
       actor_id,
       message,
+      comment_text: comment_text || null,
     });
 
     res.status(201).json({
-      message: recipient_id ? "Notification created successfully" : "Broadcast notification created successfully",
+      message: "Notification created successfully",
       data: result
     });
   } catch (error) {
@@ -54,5 +56,25 @@ export const getAllNotifications = async (req, res) => {
     res.json(notifications);
   } catch (error) {
     res.status(500).json({ message: "Failed to get all notifications", error: error.message });
+  }
+};
+
+export const getNotificationsByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const notifications = await NotificationService.getNotifications(userId);
+    res.json(notifications);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to get notifications", error: error.message });
+  }
+};
+
+export const markNotificationAsRead = async (req, res) => {
+  try {
+    const { notificationId } = req.params;
+    const result = await NotificationService.markAsRead(notificationId);
+    res.json({ message: "Notification marked as read", data: result });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to mark notification as read", error: error.message });
   }
 };

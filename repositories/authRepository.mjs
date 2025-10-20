@@ -1,6 +1,6 @@
 import { supabase } from '../config/supabase.mjs';
 
-// CHECK Username Exists
+// CHECK Username Exists - Database operation
 export async function checkUsernameExists(username) {
   const { data, error } = await supabase
     .from('users')
@@ -10,7 +10,7 @@ export async function checkUsernameExists(username) {
   return { data, error };
 }
 
-// CREATE Auth User
+// CREATE Auth User - Supabase Auth operation
 export async function createAuthUser(email, password) {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -20,7 +20,7 @@ export async function createAuthUser(email, password) {
   return { data, error };
 }
 
-// CREATE User Profile
+// CREATE User Profile - Database operation
 export async function createUserProfile(userData) {
   const { data, error } = await supabase
     .from('users')
@@ -31,7 +31,7 @@ export async function createUserProfile(userData) {
   return { data, error };
 }
 
-// SIGN IN
+// SIGN IN - Supabase Auth operation
 export async function signIn(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -41,13 +41,13 @@ export async function signIn(email, password) {
   return { data, error };
 }
 
-// GET User from Token
+// GET User from Token - Supabase Auth operation
 export async function getUserFromToken(token) {
   const { data, error } = await supabase.auth.getUser(token);
   return { data, error };
 }
 
-// GET User by ID
+// GET User by ID - Database operation
 export async function getUserById(userId) {
   const { data, error } = await supabase
     .from('users')
@@ -58,7 +58,7 @@ export async function getUserById(userId) {
   return { data, error };
 }
 
-// VERIFY Password
+// VERIFY Password - Supabase Auth operation
 export async function verifyPassword(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -68,7 +68,7 @@ export async function verifyPassword(email, password) {
   return { data, error };
 }
 
-// UPDATE Password
+// UPDATE Password - Supabase Auth operation
 export async function updatePassword(newPassword) {
   const { data, error } = await supabase.auth.updateUser({
     password: newPassword,
@@ -77,7 +77,7 @@ export async function updatePassword(newPassword) {
   return { data, error };
 }
 
-// UPDATE User Profile
+// UPDATE User Profile - Database operation
 export async function updateUserProfile(userId, updateData) {
   const { data, error } = await supabase
     .from('users')
