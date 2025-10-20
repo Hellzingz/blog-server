@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { createNotification } from "../controllers/notification.mjs";
+import { createNotification, getBroadcastNotifications } from "../controllers/notification.mjs";
 import * as NotificationService from "../services/notification.mjs";
 
 const notificationRouter = Router()
@@ -8,6 +8,8 @@ const notificationRouter = Router()
 notificationRouter.post('/', createNotification)
 
 // GET
+notificationRouter.get('/broadcast', getBroadcastNotifications)
+
 notificationRouter.get('/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
