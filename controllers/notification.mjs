@@ -47,19 +47,3 @@ export const createNotification = async (req, res) => {
     });
   }
 };
-
-export const getBroadcastNotifications = async (req, res) => {
-  try {
-    const notifications = await NotificationService.getBroadcastNotifications();
-    
-    res.status(200).json({
-      message: "Broadcast notifications retrieved successfully",
-      data: notifications
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Server could not get broadcast notifications",
-      error: error.message,
-    });
-  }
-};
