@@ -33,7 +33,7 @@ export async function getNotifications(userId) {
         profile_pic
       )
     `)
-    .or(`recipient_id.eq.${userId},recipient_id.is.null`)
+    .or(`recipient_id.eq."${userId}",recipient_id.is.null`)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
