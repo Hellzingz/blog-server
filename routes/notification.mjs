@@ -7,7 +7,11 @@ const notificationRouter = Router()
 // POST
 notificationRouter.post('/', createNotification)
 
-// GET
+
+// TEST: GET ALL NOTIFICATIONS
+notificationRouter.get('/', getAllNotifications)
+
+// GET NOTIFICATIONS BY USER ID
 notificationRouter.get('/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
@@ -18,8 +22,6 @@ notificationRouter.get('/:userId', async (req, res) => {
   }
 })
 
-// GET ALL NOTIFICATIONS
-notificationRouter.get('/', getAllNotifications)
 // PUT
 notificationRouter.put('/:notificationId/read', async (req, res) => {
   try {
