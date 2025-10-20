@@ -7,34 +7,37 @@ export const createNotification = async (req, res) => {
       target_type,    
       target_id,     
       recipient_id,       
-      actor_id,       
+      actor_id,   
+      message,
     } = req.body;
 
-    // ตรวจสอบข้อมูลที่จำเป็น
-    if (!type || !target_type || !target_id || !recipient_id || !actor_id ) {
+    // ตรวจสอบข้อมูลที่จำเป็น (recipient_id และ target_id เป็น optional)
+    if (!type || !target_type || !actor_id || !message) {
       return res.status(400).json({
         message: "Missing required fields",
-        required: ["type", "target_type", "target_id", "recipient_id", "actor_id"]
+        required: ["type", "target_type", "actor_id", "message"],
+        optional: ["recipient_id", "target_id"]
       });
     }
 
-    // ตรวจสอบว่าไม่ใช่คนเดียวกัน
-    if (recipient_id === actor_id) {
+    // ตรวจสอบว่าไม่ใช่คนเดียวกัน (เฉพาะเมื่อมี recipient_id)
+    if (recipient_id && recipient_id === actor_id) {
       return res.status(400).json({
-        message: "Cannot create notification for self"
+        message: "Error: Cannot create notification for self"
       });
     }
 
     const result = await NotificationService.createNotification({
       type,
       target_type,
-      target_id,
-      recipient_id,
+      target_id: target_id || null,
+      recipient_id: recipient_id || null, // null = broadcast notification
       actor_id,
+      message,
     });
 
     res.status(201).json({
-      message: "Notification created successfully",
+      message: recipient_id ? "Notification created successfully" : "Broadcast notification created successfully",
       data: result
     });
   } catch (error) {
