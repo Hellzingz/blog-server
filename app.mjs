@@ -17,7 +17,7 @@ app.use(cors());
 app.use('/posts', postRouter);
 app.use('/auth', authRouter);
 app.use('/categories', categoryRouter);
-app.use('/notification', notificationRouter);
+app.use('/notifications', notificationRouter);
 
 // Optional: root route for test
 app.get("/", (req, res) => {
