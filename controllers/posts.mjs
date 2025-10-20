@@ -1,7 +1,6 @@
 import * as PostsService from "../services/postsService.mjs";
 
 // POST Comment
-
 export const createComment = async (req, res) => {
   try {
     const { post_id, user_id, comment_text } = req.body;
@@ -31,7 +30,6 @@ export const createComment = async (req, res) => {
 };
 
 // HANDLE Likes
-
 export const handleLikes = async (req, res) => {
   try {
     const { user_id } = req.body;
@@ -56,7 +54,6 @@ export const handleLikes = async (req, res) => {
 };
 
 // CREATE Post
-
 export const createPost = async (req, res) => {
   try {
     const newPost = req.body;
@@ -90,7 +87,6 @@ export const createPost = async (req, res) => {
 };
 
 //GET All Posts
-
 export const readAllPosts = async (req, res) => {
   try {
     const result = await PostsService.getAllPosts(req.query);
@@ -112,7 +108,6 @@ export const readAllPosts = async (req, res) => {
 };
 
 // GET Post by ID
-
 export const readById = async (req, res) => {
   const { postId } = req.params;
 
@@ -137,7 +132,6 @@ export const readById = async (req, res) => {
 };
 
 //GET Post Titles
-
 export const getPostTitles = async (req, res) => {
   const { status } = req.query;
   try {
@@ -159,7 +153,6 @@ export const getPostTitles = async (req, res) => {
 };
 
 //GET Comments
-
 export const readComments = async (req, res) => {
   try {
     const post_id = Number(req.params.postId);
@@ -182,7 +175,6 @@ export const readComments = async (req, res) => {
 };
 
 // UPDATE Post
-
 export const updatePost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -222,7 +214,6 @@ export const updatePost = async (req, res) => {
 };
 
 // DELETE Post
-
 export const deleteById = async (req, res) => {
   const { postId } = req.params;
   try {

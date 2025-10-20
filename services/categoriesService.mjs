@@ -3,6 +3,7 @@ import * as CategoriesRepository from "../repositories/categoriesRepository.mjs"
 // GET All Categories
 export async function getAllCategories() {
   try {
+    // Call Repository
     const { data, error } = await CategoriesRepository.getAllCategories();
 
     if (error) {
@@ -24,6 +25,7 @@ export async function getAllCategories() {
 // GET Category by ID
 export async function getCategoryById(categoryId) {
   try {
+    // Call Repository
     const { data, error } = await CategoriesRepository.getCategoryById(
       categoryId
     );
@@ -51,10 +53,7 @@ export async function getCategoryById(categoryId) {
 // CREATE Category
 export async function createCategory(name) {
   try {
-    if (!name) {
-      throw new Error("Name is required");
-    }
-
+    // Business logic: Check if category name already exists
     const { data: existingCategory, error: checkError } =
       await CategoriesRepository.checkCategoryNameExists(name);
 
@@ -62,6 +61,7 @@ export async function createCategory(name) {
       throw new Error("Category name already exists");
     }
 
+    // Call Repository
     const { data, error } = await CategoriesRepository.createCategory(name);
 
     if (error) {
@@ -84,10 +84,7 @@ export async function createCategory(name) {
 // UPDATE Category
 export async function updateCategory(categoryId, name) {
   try {
-    if (!name) {
-      throw new Error("Name is required");
-    }
-
+    // Call Repository: Check if category exists
     const { data: existingCategory, error: checkError } =
       await CategoriesRepository.getCategoryById(categoryId);
 
@@ -95,6 +92,7 @@ export async function updateCategory(categoryId, name) {
       throw new Error("Category not found");
     }
 
+    // Business logic: Check for duplicate name (excluding current category)
     const { data: duplicateCheck, error: duplicateError } =
       await CategoriesRepository.checkCategoryNameExistsExcludingId(
         name,
@@ -105,6 +103,7 @@ export async function updateCategory(categoryId, name) {
       throw new Error("Category name already exists");
     }
 
+    // Call Repository: Update category
     const { data, error } = await CategoriesRepository.updateCategory(
       categoryId,
       name
@@ -130,6 +129,7 @@ export async function updateCategory(categoryId, name) {
 // DELETE Category
 export async function deleteCategory(categoryId) {
   try {
+    // Call Repository
     const { error } = await CategoriesRepository.deleteCategory(categoryId);
 
     if (error) {

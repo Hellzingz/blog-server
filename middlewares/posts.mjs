@@ -1,39 +1,45 @@
+import { validateRequired, validateTypes } from './validation.mjs';
+
+// Validate post creation/update data
 export const validatePost = (req, res, next) => {
   const formData = req.body;
   
-  if (!formData.title) {
-    return res.status(400).json({ message: "Title is required" });
-  }
-  if (!formData.category_id) {
-    return res.status(400).json({ message: "Category ID is required" });
-  }
-
-  if (!formData.description) {
-    return res.status(400).json({ message: "Description is required" });
-  }
-
-  if (!formData.content) {
-    return res.status(400).json({ message: "Content is required" });
+  // Check required fields
+  const requiredFields = ['title', 'category_id', 'description', 'content', 'status_id'];
+  const missingFields = requiredFields.filter(field => !formData[field]);
+  
+  if (missingFields.length > 0) {
+    return res.status(400).json({ 
+      message: `Required fields missing: ${missingFields.join(', ')}`,
+      missingFields 
+    });
   }
 
-  if (!formData.status_id) {
-    return res.status(400).json({ message: "Status ID is required" });
-  }
-
+  // Check field types
+  const typeErrors = [];
+  
   if (typeof formData.title !== "string") {
-    return res.status(400).json({ message: "Title must be string" });
+    typeErrors.push("Title must be a string");
   }
   if (isNaN(Number(formData.category_id))) {
-    return res.status(400).json({ message: "Category ID must be a number" });
+    typeErrors.push("Category ID must be a number");
   }
   if (typeof formData.description !== "string") {
-    return res.status(400).json({ message: "Description must be string" });
+    typeErrors.push("Description must be a string");
   }
   if (typeof formData.content !== "string") {
-    return res.status(400).json({ message: "Content must be string" });
+    typeErrors.push("Content must be a string");
   }
   if (isNaN(Number(formData.status_id))) {
-    return res.status(400).json({ message: "Status ID must be a number" });
+    typeErrors.push("Status ID must be a number");
   }
+  
+  if (typeErrors.length > 0) {
+    return res.status(400).json({ 
+      message: "Validation errors",
+      errors: typeErrors 
+    });
+  }
+  
   next();
 };

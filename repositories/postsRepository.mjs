@@ -1,6 +1,6 @@
 import { supabase } from "../config/supabase.mjs";
 
-// CREATE Post
+// CREATE Post - Database operation
 export async function createPost(postData) {
   const { data, error } = await supabase
     .from("posts")
@@ -10,7 +10,7 @@ export async function createPost(postData) {
   return { data, error };
 }
 
-// GET All Posts
+// GET All Posts - Database operation with filtering and pagination
 export async function getAllPosts(options = {}) {
   const {
     page = 1,
@@ -25,7 +25,7 @@ export async function getAllPosts(options = {}) {
   const truelimit = Math.max(1, Math.min(100, limit));
   const offset = (truePage - 1) * truelimit;
 
-  // Query
+  // Database query with joins
   let query = supabase
     .from("posts")
     .select(
@@ -40,22 +40,19 @@ export async function getAllPosts(options = {}) {
     .order("date", { ascending: false })
     .range(offset, offset + truelimit - 1);
 
-  // Filter by category
+  // Apply filters
   if (category) {
     query = query.eq("category_id", category);
   }
 
-  // Filter by status
   if (status) {
     query = query.eq("status_id", status);
   }
 
-  // Filter by serchId
   if (searchId) {
     query = query.eq("id", searchId);
   }
 
-  // Filter by keyword
   if (keyword && keyword.trim() !== "") {
     query = query.or(
       `title.ilike.%${keyword}%,content.ilike.%${keyword}%,description.ilike.%${keyword}%`
@@ -66,7 +63,7 @@ export async function getAllPosts(options = {}) {
   return { data, count, error, truePage, truelimit };
 }
 
-// GET Post by ID
+// GET Post by ID - Database operation with joins
 export async function getPostById(postId) {
   const { data, error } = await supabase
     .from("posts")
@@ -90,7 +87,7 @@ export async function getPostById(postId) {
   return { data, error };
 }
 
-// CHECK Post Exists
+// CHECK Post Exists - Database operation
 export async function checkPostExists(postId) {
   const { data, error } = await supabase
     .from("posts")
@@ -101,7 +98,7 @@ export async function checkPostExists(postId) {
   return { data, error };
 }
 
-// UPDATE Post
+// UPDATE Post - Database operation
 export async function updatePost(postId, updateData) {
   const { data, error } = await supabase
     .from("posts")
@@ -113,21 +110,21 @@ export async function updatePost(postId, updateData) {
   return { data, error };
 }
 
-// DELETE Post
+// DELETE Post - Database operation
 export async function deletePost(postId) {
   const { error } = await supabase.from("posts").delete().eq("id", postId);
 
   return { error };
 }
 
-// CREATE Comment
+// CREATE Comment - Database operation
 export async function createComment(commentData) {
   const { error } = await supabase.from("comments").insert([commentData]);
 
   return { error };
 }
 
-// GET Comments
+// GET Comments - Database operation with pagination and joins
 export async function getComments(postId, options = {}) {
   const { page = 1, limit = 6 } = options;
   const truePage = Math.max(1, page);
@@ -153,7 +150,7 @@ export async function getComments(postId, options = {}) {
   return { data, count, error, truePage, truelimit };
 }
 
-// CHECK Like
+// CHECK Like - Database operation
 export async function checkLike(userId, postId) {
   const { data, error } = await supabase
     .from("likes")
@@ -165,25 +162,25 @@ export async function checkLike(userId, postId) {
   return { data, error };
 }
 
-// GET Post for Like
+// GET Post for Like - Database operation
 export async function getPostForLike(postId) {
   const { data, error } = await supabase
     .from("posts")
-    .select("likes_count")
+    .select("likes_count, user_id")
     .eq("id", postId)
     .single();
 
   return { data, error };
 }
 
-// REMOVE Like
+// REMOVE Like - Database operation
 export async function removeLike(likeId) {
   const { error } = await supabase.from("likes").delete().eq("id", likeId);
 
   return { error };
 }
 
-// ADD Like
+// ADD Like - Database operation
 export async function addLike(userId, postId) {
   const { error } = await supabase
     .from("likes")
@@ -192,7 +189,7 @@ export async function addLike(userId, postId) {
   return { error };
 }
 
-// UPDATE Likes Count
+// UPDATE Likes Count - Database operation
 export async function updateLikesCount(postId, likesCount) {
   const { error } = await supabase
     .from("posts")
@@ -202,7 +199,7 @@ export async function updateLikesCount(postId, likesCount) {
   return { error };
 }
 
-//GET Post Titles
+// GET Post Titles - Database operation
 export async function getPostTitles(statusId) {
   const { data, error } = await supabase
     .from("posts")

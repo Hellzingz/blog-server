@@ -1,6 +1,6 @@
 import { supabase } from '../config/supabase.mjs';
 
-// GET All Categories
+// GET All Categories - Database operation
 export async function getAllCategories() {
   const { data, error } = await supabase
     .from('categories')
@@ -10,7 +10,7 @@ export async function getAllCategories() {
   return { data, error };
 }
 
-// GET Category by ID
+// GET Category by ID - Database operation
 export async function getCategoryById(categoryId) {
   const { data, error } = await supabase
     .from('categories')
@@ -21,7 +21,7 @@ export async function getCategoryById(categoryId) {
   return { data, error };
 }
 
-// CHECK Category Name Exists
+// CHECK Category Name Exists - Database operation
 export async function checkCategoryNameExists(name) {
   const { data, error } = await supabase
     .from('categories')
@@ -32,7 +32,7 @@ export async function checkCategoryNameExists(name) {
   return { data, error };
 }
 
-// CHECK Category Name Exists Excluding ID
+// CHECK Category Name Exists Excluding ID - Database operation
 export async function checkCategoryNameExistsExcludingId(name, excludeId) {
   const { data, error } = await supabase
     .from('categories')
@@ -44,7 +44,7 @@ export async function checkCategoryNameExistsExcludingId(name, excludeId) {
   return { data, error };
 }
 
-// CREATE Category
+// CREATE Category - Database operation
 export async function createCategory(name) {
   const { data, error } = await supabase
     .from('categories')
@@ -55,7 +55,7 @@ export async function createCategory(name) {
   return { data, error };
 }
 
-// UPDATE Category
+// UPDATE Category - Database operation
 export async function updateCategory(categoryId, name) {
   const { data, error } = await supabase
     .from('categories')
@@ -67,7 +67,7 @@ export async function updateCategory(categoryId, name) {
   return { data, error };
 }
 
-// DELETE Category
+// DELETE Category - Database operation
 export async function deleteCategory(categoryId) {
   const { error } = await supabase
     .from('categories')

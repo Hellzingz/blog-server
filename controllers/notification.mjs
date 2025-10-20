@@ -58,3 +58,23 @@ export const getAllNotifications = async (req, res) => {
     res.status(500).json({ message: "Failed to get all notifications", error: error.message });
   }
 };
+
+export const getNotificationsByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const notifications = await NotificationService.getNotifications(userId);
+    res.json(notifications);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to get notifications", error: error.message });
+  }
+};
+
+export const markNotificationAsRead = async (req, res) => {
+  try {
+    const { notificationId } = req.params;
+    const result = await NotificationService.markAsRead(notificationId);
+    res.json({ message: "Notification marked as read", data: result });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to mark notification as read", error: error.message });
+  }
+};
