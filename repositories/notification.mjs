@@ -40,6 +40,7 @@ export async function getNotifications(userId) {
     `
     )
     .or(`recipient_id.eq.${userId},recipient_id.is.null`)
+    .eq("is_read", false)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -57,14 +58,20 @@ export async function markAsRead(notificationId) {
   return data[0];
 }
 export async function getAllNotifications() {
-  const { data, error } = await supabase.from("notifications").select(`*, 
+  const { data, error } = await supabase
+    .from("notifications")
+    .select(`
+      *,
       actor:actor_id (
-      id,
-      username,
-      name,
-      profile_pic
-    )`)
+        id,
+        username,
+        name,
+        profile_pic
+      )
+    `)
+    .eq("is_read", false)
     .order("created_at", { ascending: false });
+
   if (error) throw error;
   return data;
 }
