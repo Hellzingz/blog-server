@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { createNotification } from "../controllers/notification.mjs";
+import { createNotification, getAllNotifications } from "../controllers/notification.mjs";
 import * as NotificationService from "../services/notification.mjs";
 
 const notificationRouter = Router()
@@ -18,6 +18,8 @@ notificationRouter.get('/:userId', async (req, res) => {
   }
 })
 
+// GET ALL NOTIFICATIONS
+notificationRouter.get('/', getAllNotifications)
 // PUT
 notificationRouter.put('/:notificationId/read', async (req, res) => {
   try {

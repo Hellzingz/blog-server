@@ -50,3 +50,10 @@ export async function markAsRead(notificationId) {
   if (error) throw error;
   return data[0];
 }
+export async function getAllNotifications() {
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("*");
+  if (error) throw error;
+  return data;
+}
