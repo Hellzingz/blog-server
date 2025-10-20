@@ -57,26 +57,12 @@ export const handleLikes = async (req, res) => {
 export const createPost = async (req, res) => {
   try {
     const newPost = req.body;
-    const imageUrl = req.imageUrl;
-    const user_id = req.user.id; // ดึง user_id จาก protectAdmin middleware
-    const result = await PostsService.createPost(newPost, imageUrl, user_id);
+    const imageUrl = req.imageUrl
+    const result = await PostsService.createPost(newPost, imageUrl);
 
-    if (result.success) {
-      res.status(201).json({
-        message: result.message,
-        postId: result.postId,
-      });
-    } else {
-      const statusCode =
-        result.error.includes("required") ||
-        result.error.includes("upload failed")
-          ? 400
-          : 500;
-      res.status(statusCode).json({
-        message: "Server could not create post",
-        error: result.error,
-      });
-    }
+    res.status(201).json({
+      message: "Created post successfully",
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({

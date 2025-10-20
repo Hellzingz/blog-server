@@ -3,7 +3,7 @@ import * as NotificationService from "./notification.mjs";
 import * as AuthRepository from "../repositories/authRepository.mjs";
 
 // CREATE Post
-export async function createPost(postData, imageUrl, user_id) {
+export async function createPost(postData, imageUrl) {
   try {
     // Business logic: Prepare post data
     const newPost = {
@@ -13,26 +13,17 @@ export async function createPost(postData, imageUrl, user_id) {
       description: postData.description || null,
       content: postData.content || null,
       status_id: parseInt(postData.status_id),
-      user_id: user_id,
+      user_id: postData.user_id,
     };
 
     // Call Repository
-    const { data, error } = await PostsRepository.createPost(newPost);
-
+    const { error } = await PostsRepository.createPost(newPost);
     if (error) {
-      throw new Error("Server could not create post");
+      throw error;
     }
-
-    return {
-      success: true,
-      message: "Created post successfully",
-      postId: data[0].id,
-    };
+    return "Created post successfully";
   } catch (error) {
-    return {
-      success: false,
-      error: error.message,
-    };
+    throw new Error("Server could not create post");
   }
 }
 
