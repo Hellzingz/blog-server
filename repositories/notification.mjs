@@ -21,7 +21,7 @@ export async function createNotification(notificationData) {
   return data[0];
 }
 
-export async function getNotifications(recipient_id) {
+export async function getNotifications(userId) {
   const { data, error } = await supabase
     .from("notifications")
     .select(`
@@ -33,7 +33,7 @@ export async function getNotifications(recipient_id) {
         profile_pic
       )
     `)
-    .or(`recipient_id.eq.${recipient_id},recipient_id.is.null`)
+    .or(`recipient_id.eq."${userId}",recipient_id.is.null`)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
