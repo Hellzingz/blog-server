@@ -9,6 +9,7 @@ export const createNotification = async (req, res) => {
       recipient_id,       
       actor_id,   
       message,
+      comment_text,
     } = req.body;
 
     // ตรวจสอบข้อมูลที่จำเป็น (recipient_id และ target_id เป็น optional)
@@ -31,13 +32,14 @@ export const createNotification = async (req, res) => {
       type,
       target_type,
       target_id: target_id || null,
-      recipient_id: recipient_id || null, // null = broadcast notification
+      recipient_id: recipient_id || null,
       actor_id,
       message,
+      comment_text: comment_text || null,
     });
 
     res.status(201).json({
-      message: recipient_id ? "Notification created successfully" : "Broadcast notification created successfully",
+      message: "Notification created successfully",
       data: result
     });
   } catch (error) {

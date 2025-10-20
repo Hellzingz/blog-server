@@ -1,7 +1,7 @@
 import { supabase } from "../config/supabase.mjs";
 
 export async function createNotification(notificationData) {
-  const { type, target_type, target_id, recipient_id, actor_id, message } =
+  const { type, target_type, target_id, recipient_id, actor_id, message, comment_text } =
     notificationData;
 
   const { data, error } = await supabase
@@ -14,6 +14,7 @@ export async function createNotification(notificationData) {
         recipient_id: recipient_id || null, // null = broadcast notification
         actor_id,
         message,
+        comment_text: comment_text || null,
         is_read: false,
         created_at: new Date().toISOString(),
       },
