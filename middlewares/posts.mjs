@@ -4,20 +4,15 @@ import { validateRequired, validateTypes } from './validation.mjs';
 export const validatePost = (req, res, next) => {
   const formData = req.body;
   
-  // Check required fields
   const requiredFields = ['title', 'category_id', 'description', 'content', 'status_id'];
   const missingFields = requiredFields.filter(field => !formData[field]);
-  
   if (missingFields.length > 0) {
     return res.status(400).json({ 
       message: `Required fields missing: ${missingFields.join(', ')}`,
       missingFields 
     });
   }
-
-  // Check field types
   const typeErrors = [];
-  
   if (typeof formData.title !== "string") {
     typeErrors.push("Title must be a string");
   }

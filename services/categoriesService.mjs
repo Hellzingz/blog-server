@@ -53,21 +53,17 @@ export async function getCategoryById(categoryId) {
 // CREATE Category
 export async function createCategory(name) {
   try {
-    // Business logic: Check if category name already exists
     const { data: existingCategory, error: checkError } =
       await CategoriesRepository.checkCategoryNameExists(name);
 
     if (existingCategory) {
       throw new Error("Category name already exists");
     }
-
-    // Call Repository
     const { data, error } = await CategoriesRepository.createCategory(name);
 
     if (error) {
       throw new Error("Server could not create category");
     }
-
     return {
       success: true,
       message: "Created category successfully",
@@ -84,15 +80,12 @@ export async function createCategory(name) {
 // UPDATE Category
 export async function updateCategory(categoryId, name) {
   try {
-    // Call Repository: Check if category exists
     const { data: existingCategory, error: checkError } =
       await CategoriesRepository.getCategoryById(categoryId);
 
     if (checkError || !existingCategory) {
       throw new Error("Category not found");
     }
-
-    // Business logic: Check for duplicate name (excluding current category)
     const { data: duplicateCheck, error: duplicateError } =
       await CategoriesRepository.checkCategoryNameExistsExcludingId(
         name,
@@ -102,8 +95,6 @@ export async function updateCategory(categoryId, name) {
     if (duplicateCheck) {
       throw new Error("Category name already exists");
     }
-
-    // Call Repository: Update category
     const { data, error } = await CategoriesRepository.updateCategory(
       categoryId,
       name
@@ -129,7 +120,6 @@ export async function updateCategory(categoryId, name) {
 // DELETE Category
 export async function deleteCategory(categoryId) {
   try {
-    // Call Repository
     const { error } = await CategoriesRepository.deleteCategory(categoryId);
 
     if (error) {
