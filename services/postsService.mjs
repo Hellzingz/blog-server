@@ -228,7 +228,7 @@ export async function createComment(postId, userId, commentText) {
             target_id: postId,
             recipient_id: post.user_id,
             actor_id: userId,
-            message: `${user.name} commented on your article: ${post.title}`,
+            message: `commented on your article: ${post.title}`,
             comment_text: commentText,
           });
         }
@@ -306,7 +306,7 @@ export async function getComments(postId, queryParams) {
 }
 
 // Handle Likes
-export async function handleLikes(userId, postId) {
+export async function handleLikes(userId, postId, postTitle) {
   try {
     const { data: existing, error: checkError } =
       await PostsRepository.checkLike(userId, postId);
@@ -340,7 +340,7 @@ export async function handleLikes(userId, postId) {
               target_id: postId,
               recipient_id: post.user_id,
               actor_id: userId,
-              message: `${user.name} unliked your article: ${post.title}`,
+              message: `unliked your article: ${postTitle}`,
             });
           }
         }
@@ -367,7 +367,7 @@ export async function handleLikes(userId, postId) {
               target_id: postId,
               recipient_id: post.user_id,
               actor_id: userId,
-              message: `${user.name} liked your article: ${post.title}`,
+              message: `liked your article: ${postTitle}`,
             });
           }
         }
