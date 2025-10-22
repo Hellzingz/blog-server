@@ -1,12 +1,23 @@
-import { supabase } from '../config/supabase.mjs';
+import { supabase } from "../config/supabase.mjs";
+
+// CHECK Email Exists - Supabase Auth operation
+export async function checkEmailExists(email) {
+  const { data, error } = await supabase.auth.admin.getUserByEmail(email);
+
+  if (error && error.message.includes("User not found")) {
+    return { data: null, error: null };
+  }
+
+  return { data, error };
+}
 
 // CHECK Username Exists - Database operation
 export async function checkUsernameExists(username) {
   const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('username', username);
-  
+    .from("users")
+    .select("*")
+    .eq("username", username);
+
   return { data, error };
 }
 
@@ -16,18 +27,18 @@ export async function createAuthUser(email, password) {
     email,
     password,
   });
-  
+
   return { data, error };
 }
 
 // CREATE User Profile - Database operation
 export async function createUserProfile(userData) {
   const { data, error } = await supabase
-    .from('users')
+    .from("users")
     .insert([userData])
     .select()
     .single();
-  
+
   return { data, error };
 }
 
@@ -37,7 +48,7 @@ export async function signIn(email, password) {
     email,
     password,
   });
-  
+
   return { data, error };
 }
 
@@ -50,11 +61,11 @@ export async function getUserFromToken(token) {
 // GET User by ID - Database operation
 export async function getUserById(userId) {
   const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', userId)
+    .from("users")
+    .select("*")
+    .eq("id", userId)
     .single();
-  
+
   return { data, error };
 }
 
@@ -64,7 +75,7 @@ export async function verifyPassword(email, password) {
     email,
     password,
   });
-  
+
   return { data, error };
 }
 
@@ -73,18 +84,18 @@ export async function updatePassword(newPassword) {
   const { data, error } = await supabase.auth.updateUser({
     password: newPassword,
   });
-  
+
   return { data, error };
 }
 
 // UPDATE User Profile - Database operation
 export async function updateUserProfile(userId, updateData) {
   const { data, error } = await supabase
-    .from('users')
+    .from("users")
     .update(updateData)
-    .eq('id', userId)
+    .eq("id", userId)
     .select()
     .single();
-  
+
   return { data, error };
 }

@@ -3,11 +3,12 @@ import * as PostsService from "../services/postsService.mjs";
 // POST Comment
 export const createComment = async (req, res) => {
   try {
-    const { post_id, user_id, comment_text } = req.body;
+    const { post_id, user_id, comment_text,post_title } = req.body;
     const result = await PostsService.createComment(
       post_id,
       user_id,
-      comment_text
+      comment_text,
+      post_title
     );
 
     if (result.success) {
