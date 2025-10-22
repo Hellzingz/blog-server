@@ -3,15 +3,12 @@ import * as AuthRepository from "../repositories/authRepository.mjs";
 // Register
 export async function register(email, password, username, name) {
   try {
-    // Check if username already exists
     const { data: existingUser, error: usernameError } =
       await AuthRepository.checkUsernameExists(username);
 
-    if (usernameError) {
-      throw new Error("Database error during username check");
-    }
+    if (usernameError) throw new Error("Database error during username check");
 
-    if (existingUser && existingUser.length > 0) {
+    if (Array.isArray(existingUser) && existingUser.length > 0) {
       throw new Error("Username already exists");
     }
 
@@ -19,12 +16,18 @@ export async function register(email, password, username, name) {
       await AuthRepository.createAuthUser(email, password);
 
     if (supabaseError) {
-      if (supabaseError.message.includes("User already registered")) {
+      console.error("Supabase auth error:", supabaseError);
+
+      if (
+        supabaseError.message.includes("User already registered") ||
+        supabaseError.message.includes("duplicate key value") ||
+        supabaseError.message.includes("already exists")
+      ) {
         throw new Error("Email already exists");
       }
+
       throw new Error("Failed to create user. Please try again.");
     }
-
     const supabaseUserId = authData.user.id;
 
     const { data: newUser, error: insertError } =
