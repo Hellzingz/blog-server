@@ -1,14 +1,8 @@
 import { supabase } from "../config/supabase.mjs";
 
-// CHECK Email Exists - Supabase Auth operation
+// CHECK Email Exists - Simple approach: let signUp handle it
 export async function checkEmailExists(email) {
-  const { data, error } = await supabase.auth.admin.getUserByEmail(email);
-
-  if (error && error.message.includes("User not found")) {
-    return { data: null, error: null };
-  }
-
-  return { data, error };
+  return { data: null, error: null };
 }
 
 // CHECK Username Exists - Database operation
