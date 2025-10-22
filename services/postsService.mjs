@@ -201,12 +201,13 @@ export async function deletePost(postId) {
 }
 
 // POST Comment
-export async function createComment(postId, userId, commentText) {
+export async function createComment(postId, userId, commentText, postTitle) {
   try {
     const commentData = {
       post_id: parseInt(postId, 10),
       user_id: userId,
       comment_text: commentText,
+      post_title: postTitle,
     };
 
     const { error } = await PostsRepository.createComment(commentData);
@@ -228,7 +229,7 @@ export async function createComment(postId, userId, commentText) {
             target_id: postId,
             recipient_id: post.user_id,
             actor_id: userId,
-            message: `commented on your article: ${post.title}`,
+            message: `commented on your article: ${postTitle}`,
             comment_text: commentText,
           });
         }
