@@ -1,10 +1,5 @@
 import { supabase } from "../config/supabase.mjs";
 
-// CHECK Email Exists - Simple approach: let signUp handle it
-export async function checkEmailExists(email) {
-  return { data: null, error: null };
-}
-
 // CHECK Username Exists - Database operation
 export async function checkUsernameExists(username) {
   const { data, error } = await supabase
