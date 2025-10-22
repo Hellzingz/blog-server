@@ -228,6 +228,8 @@ export async function createComment(postId, userId, commentText) {
             target_id: postId,
             recipient_id: post.user_id,
             actor_id: userId,
+            message: `${user.name} commented on your article: ${post.title}`,
+            comment_text: commentText,
           });
         }
       }
@@ -327,6 +329,25 @@ export async function handleLikes(userId, postId) {
         Math.max(post.likes_count - 1, 0)
       );
 
+      try {
+        if (post.user_id !== userId) {
+          const { data: user, error: userError } = await AuthRepository.getUserById(userId);
+          
+          if (!userError && user) {
+            await NotificationService.createNotification({
+              type: "unlike",
+              target_type: "post",
+              target_id: postId,
+              recipient_id: post.user_id,
+              actor_id: userId,
+              message: `${user.name} unliked your article: ${post.title}`,
+            });
+          }
+        }
+      } catch (notificationError) {
+        console.error("Failed to create unlike notification:", notificationError);
+      }
+
       return {
         success: true,
         status: "unliked",
@@ -346,6 +367,7 @@ export async function handleLikes(userId, postId) {
               target_id: postId,
               recipient_id: post.user_id,
               actor_id: userId,
+              message: `${user.name} liked your article: ${post.title}`,
             });
           }
         }
