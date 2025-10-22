@@ -32,9 +32,9 @@ export const createComment = async (req, res) => {
 // HANDLE Likes
 export const handleLikes = async (req, res) => {
   try {
-    const { user_id } = req.body;
+    const { user_id, post_title } = req.body;
     const post_id = Number(req.params.postId);
-    const result = await PostsService.handleLikes(user_id, post_id);
+    const result = await PostsService.handleLikes(user_id, post_id, post_title);
 
     if (result.success) {
       res.json({ status: result.status });
