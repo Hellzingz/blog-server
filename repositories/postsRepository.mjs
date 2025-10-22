@@ -2,11 +2,11 @@ import { supabase } from "../config/supabase.mjs";
 
 // CREATE Post - Database operation
 export async function createPost(postData) {
-  const {data, error} = await supabase
+  const { data, error } = await supabase
     .from("posts")
     .insert([postData])
-    .select()
-  return {data, error};
+    .select();
+  return { data, error };
 }
 
 // GET All Posts - Database operation with filtering and pagination

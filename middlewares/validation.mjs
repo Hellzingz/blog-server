@@ -126,13 +126,13 @@ export const validatePostId = (req, res, next) => {
   next();
 };
 
-// Validate user ID parameter
+// Validate user ID parameter (UUID format)
 export const validateUserId = (req, res, next) => {
   const { userId } = req.params;
-  
-  if (!userId || isNaN(Number(userId))) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!userId || !uuidRegex.test(userId)) {
     return res.status(400).json({
-      message: 'Valid user ID is required'
+      message: 'Valid user ID (UUID) is required'
     });
   }
   
