@@ -199,11 +199,19 @@ export async function updateLikesCount(postId, likesCount) {
 }
 
 // GET Post Titles - Database operation
-export async function getPostTitles(statusId) {
-  const { data, error } = await supabase
+export async function getPostTitles(statusId, keyword) {
+  let query = supabase
     .from("posts")
     .select("id, title")
-    .eq("status_id", statusId)
-    .order("date", { ascending: false });
+    .eq("status_id", statusId);
+  
+  if (keyword && keyword.trim() !== "") {
+    query = query.ilike("title", `%${keyword}%`);
+  }
+  
+  const { data, error } = await query
+    .order("date", { ascending: false })
+    .limit(5);
+    
   return { data, error };
 }

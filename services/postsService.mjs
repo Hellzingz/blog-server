@@ -389,11 +389,10 @@ export async function handleLikes(userId, postId, postTitle) {
 }
 
 // GET Post Titles
-export async function getPostTitles(status) {
+export async function getPostTitles(status, keyword) {
   try {
     const statusId = parseInt(status);
-    
-    const { data, error } = await PostsRepository.getPostTitles(statusId);
+    const { data, error } = await PostsRepository.getPostTitles(statusId, keyword);
     
     if (error) {
       throw new Error(
