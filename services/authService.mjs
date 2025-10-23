@@ -3,6 +3,9 @@ import * as AuthRepository from "../repositories/authRepository.mjs";
 // Register
 export async function register(email, password, username, name) {
   try {
+    // Convert email to lowercase
+    const normalizedEmail = email.toLowerCase().trim();
+
     const { data: existingUser, error: usernameError } =
       await AuthRepository.checkUsernameExists(username);
 
@@ -13,7 +16,7 @@ export async function register(email, password, username, name) {
     }
 
     const { data: authData, error: supabaseError } =
-      await AuthRepository.createAuthUser(email, password);
+      await AuthRepository.createAuthUser(normalizedEmail, password);
 
     if (supabaseError) {
       console.error("Supabase auth error:", supabaseError);
@@ -58,7 +61,13 @@ export async function register(email, password, username, name) {
 // Login
 export async function login(email, password) {
   try {
-    const { data, error } = await AuthRepository.signIn(email, password);
+    // Convert email to lowercase
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const { data, error } = await AuthRepository.signIn(
+      normalizedEmail,
+      password
+    );
 
     if (error) {
       if (
@@ -155,10 +164,18 @@ export async function resetPassword(token, oldPassword, newPassword) {
       throw new Error(error.message);
     }
 
+    const { data: newSession, error: sessionError } =
+      await AuthRepository.signIn(userData.user.email, newPassword);
+
+    if (sessionError) {
+      throw new Error("Failed to refresh session after password update");
+    }
+
     return {
       success: true,
       message: "Password updated successfully",
-      user: data.user,
+      access_token: newSession.session.access_token,
+      user: newSession.user,
     };
   } catch (error) {
     return {
@@ -169,7 +186,7 @@ export async function resetPassword(token, oldPassword, newPassword) {
 }
 
 // Update Profile
-export async function updateProfile(token, name, username, bio, imageUrl) {
+export async function updateAdminProfile(token, name, username, bio, imageUrl) {
   try {
     if (!token) {
       throw new Error("Unauthorized: Token missing");
@@ -192,7 +209,7 @@ export async function updateProfile(token, name, username, bio, imageUrl) {
       updateData.profile_pic = imageUrl;
     }
     const { data: updatedUser, error: updateError } =
-      await AuthRepository.updateUserProfile(supabaseUserId, updateData);
+      await AuthRepository.updateProfile(supabaseUserId, updateData);
 
     if (updateError || !updatedUser) {
       throw new Error("User not found");
@@ -207,6 +224,52 @@ export async function updateProfile(token, name, username, bio, imageUrl) {
         role: updatedUser.role,
         profilePic: updatedUser.profile_pic,
         bio: updatedUser.bio,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+}
+
+// Update User Profile
+export async function updateUserProfile(token, name, username, imageUrl) {
+  try {
+    if (!token) {
+      throw new Error("Unauthorized: Token missing");
+    }
+
+    const { data: userData, error: userError } =
+      await AuthRepository.getUserFromToken(token);
+    if (userError) {
+      throw new Error("Unauthorized: Invalid token");
+    }
+
+    const supabaseUserId = userData.user.id;
+
+    const updateData = {
+      name: name,
+      username: username,
+    };
+    if (imageUrl !== null) {
+      updateData.profile_pic = imageUrl;
+    }
+    const { data: updatedUser, error: updateError } =
+      await AuthRepository.updateProfile(supabaseUserId, updateData);
+
+    if (updateError || !updatedUser) {
+      throw new Error("User not found");
+    }
+    return {
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        id: updatedUser.id,
+        username: updatedUser.username,
+        name: updatedUser.name,
+        profilePic: updatedUser.profile_pic,
       },
     };
   } catch (error) {

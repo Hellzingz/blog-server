@@ -78,7 +78,7 @@ export async function updatePassword(newPassword) {
 }
 
 // UPDATE User Profile - Database operation
-export async function updateUserProfile(userId, updateData) {
+export async function updateProfile(userId, updateData) {
   const { data, error } = await supabase
     .from("users")
     .update(updateData)
