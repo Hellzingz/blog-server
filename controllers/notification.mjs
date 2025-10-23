@@ -44,8 +44,7 @@ export const createNotification = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Server could not create notification",
-      error: error.message,
+      message: error.message,
     });
   }
 };

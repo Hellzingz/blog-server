@@ -207,7 +207,6 @@ export async function createComment(postId, userId, commentText, postTitle) {
       post_id: parseInt(postId, 10),
       user_id: userId,
       comment_text: commentText,
-      post_title: postTitle,
     };
 
     const { error } = await PostsRepository.createComment(commentData);
