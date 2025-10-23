@@ -212,11 +212,8 @@ export const validateAdminUpdate = (req, res, next) => {
 };
 // Validate user profile update data
 export const validateUserProfileUpdate = (req, res, next) => {
-  console.log("=== VALIDATE USER PROFILE UPDATE DEBUG ===");
-  console.log("req.body:", req.body);
-  console.log("req.headers['content-type']:", req.headers['content-type']);
   
-  // ตรวจสอบว่า req.body มีอยู่หรือไม่
+
   if (!req.body) {
     console.log("ERROR: req.body is undefined");
     return res.status(400).json({
