@@ -141,7 +141,7 @@ export async function getPostById(postId) {
 export async function updatePost(postId, updateData, imageUrl) {
   try {
     const date = new Date();
-    const { title, category_id, description, content, status_id } = updateData;
+    const { title, category_id, description, content, status_id, user_id } = updateData;
 
     const { data: existingPost, error: checkError } =
       await PostsRepository.checkPostExists(postId);
@@ -158,6 +158,7 @@ export async function updatePost(postId, updateData, imageUrl) {
       content: content,
       status_id: status_id,
       date: date,
+      user_id: user_id,
     });
 
     if (error) {

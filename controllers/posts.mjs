@@ -152,7 +152,7 @@ export const readComments = async (req, res) => {
 export const updatePost = async (req, res) => {
   try {
     const { postId } = req.params;
-    const { title, category_id, description, content, status_id } = req.body;
+    const { title, category_id, description, content, status_id,user_id } = req.body;
     const imageUrl = req.imageUrl;
     const result = await PostsService.updatePost(
       postId,
@@ -162,6 +162,7 @@ export const updatePost = async (req, res) => {
         description,
         content,
         status_id,
+        user_id,
       },
       imageUrl
     );
