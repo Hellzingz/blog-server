@@ -79,12 +79,17 @@ export async function updatePassword(newPassword) {
 
 // UPDATE User Profile - Database operation
 export async function updateProfile(userId, updateData) {
+  console.log("=== UPDATE PROFILE REPOSITORY DEBUG ===");
+  console.log("Repository params:", { userId, updateData });
+  
   const { data, error } = await supabase
     .from("users")
     .update(updateData)
     .eq("id", userId)
     .select()
     .single();
+
+  console.log("Supabase result:", { data, error });
 
   return { data, error };
 }
