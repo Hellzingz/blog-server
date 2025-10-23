@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { login, register, getUser, resetPassword, updateProfilePic } from "../controllers/auth.mjs";
-import { validateRegistration, validateLogin, validatePasswordReset, validateProfileUpdate } from "../middlewares/auth.mjs";
+import { login, register, getUser, resetPassword, updateProfilePic, updateUserProfile } from "../controllers/auth.mjs";
+import { validateRegistration, validateLogin, validatePasswordReset, validateAdminUpdate, validateUserProfileUpdate } from "../middlewares/auth.mjs";
 import { imageFileUpload, uploadToSupabase } from "../middlewares/upload.mjs";
 
 const authRouter = Router();
@@ -14,6 +14,7 @@ authRouter.get("/get-user", getUser);
 
 //PUT Routes
 authRouter.put("/reset-password", validatePasswordReset, resetPassword);
-authRouter.put("/update-profile", validateProfileUpdate, imageFileUpload, uploadToSupabase, updateProfilePic);
+authRouter.put("/update-profile", validateAdminUpdate, imageFileUpload, uploadToSupabase, updateProfilePic);
+authRouter.put("/update-user-profile", validateUserProfileUpdate, imageFileUpload, uploadToSupabase, updateUserProfile);
 
 export default authRouter;

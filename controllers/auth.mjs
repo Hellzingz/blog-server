@@ -99,14 +99,14 @@ export const resetPassword = async (req, res) => {
 };
 
 // UPDATE Profile
-export const updateProfilePic = async (req, res) => {
+export const updateAdminProfile = async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   const { name, username, bio } = req.body;
 
   try {
     // ถ้าไม่มีรูปใหม่ ส่ง null แทน undefined
     const imageUrl = req.imageUrl || null;
-    const result = await AuthService.updateProfile(token, name, username, bio, imageUrl);
+    const result = await AuthService.updateAdminProfile(token, name, username, bio, imageUrl);
     
     if (result.success) {
       res.status(200).json({
@@ -121,5 +121,21 @@ export const updateProfilePic = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// UPDATE User Profile
+export const updateUserProfile = async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  const { name, username } = req.body;
+  const imageUrl = req.imageUrl || null;
+  const result = await AuthService.updateUserProfile(token, name, username, imageUrl);
+  if (result.success) {
+    res.status(200).json({
+      message: result.message,
+      user: result.user,
+    });
+  } else {
+    res.status(400).json({ error: result.error });
   }
 };

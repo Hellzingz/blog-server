@@ -3,6 +3,11 @@ import { validateRequired, validateTypes, validatePassword, validateUsername } f
 // Validate registration data
 export const validateRegistration = (req, res, next) => {
   const { email, password, username, name } = req.body;
+  
+  // Normalize email to lowercase
+  if (email) {
+    req.body.email = email.toLowerCase().trim();
+  }
   const requiredFields = ['email', 'password', 'username', 'name'];
   const missingFields = requiredFields.filter(field => !req.body[field]);
   if (missingFields.length > 0) {
@@ -36,20 +41,52 @@ export const validateRegistration = (req, res, next) => {
       message: "Invalid email format"
     });
   }
-  if (password.length < 6) {
+  if (password.length < 8) {
     return res.status(400).json({
-      message: "Password must be at least 6 characters long"
+      message: "Password must be at least 8 characters"
     });
   }
-  if (username.length < 3) {
+  if (password.length > 20) {
     return res.status(400).json({
-      message: "Username must be at least 3 characters long"
+      message: "Password must be no more than 20 characters"
+    });
+  }
+  if (!/^(?=.*[a-zA-Z])(?=.*\d).+$/.test(password)) {
+    return res.status(400).json({
+      message: "Password must contain at least one letter and one number"
+    });
+  }
+  if (username.length < 4) {
+    return res.status(400).json({
+      message: "Username must be at least 4 characters"
+    });
+  }
+  if (username.length > 15) {
+    return res.status(400).json({
+      message: "Username must be no more than 15 characters"
     });
   }
   
-  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+  if (!/^[a-zA-Z0-9]+$/.test(username)) {
     return res.status(400).json({
-      message: "Username can only contain letters, numbers, and underscores"
+      message: "Username must contain only letters and numbers"
+    });
+  }
+
+  // Name validation
+  if (name.length < 4) {
+    return res.status(400).json({
+      message: "Name must be at least 4 characters"
+    });
+  }
+  if (name.length > 20) {
+    return res.status(400).json({
+      message: "Name must be no more than 20 characters"
+    });
+  }
+  if (!/^[a-zA-Z\s]+$/.test(name)) {
+    return res.status(400).json({
+      message: "Name must contain only English letters and spaces"
     });
   }
 
@@ -58,6 +95,11 @@ export const validateRegistration = (req, res, next) => {
 
 export const validateLogin = (req, res, next) => {
   const { email, password } = req.body;
+  
+  // Normalize email to lowercase
+  if (email) {
+    req.body.email = email.toLowerCase().trim();
+  }
   if (!email || !password) {
     return res.status(400).json({
       message: "Email and password are required"
@@ -91,9 +133,19 @@ export const validatePasswordReset = (req, res, next) => {
       message: "Passwords must be strings"
     });
   }
-  if (newPassword.length < 6) {
+  if (newPassword.length < 8) {
     return res.status(400).json({
-      message: "New password must be at least 6 characters long"
+      message: "New password must be at least 8 characters"
+    });
+  }
+  if (newPassword.length > 20) {
+    return res.status(400).json({
+      message: "New password must be no more than 20 characters"
+    });
+  }
+  if (!/^(?=.*[a-zA-Z])(?=.*\d).+$/.test(newPassword)) {
+    return res.status(400).json({
+      message: "New password must contain at least one letter and one number"
     });
   }
 
@@ -101,7 +153,7 @@ export const validatePasswordReset = (req, res, next) => {
 };
 
 // Validate profile update data
-export const validateProfileUpdate = (req, res, next) => {
+export const validateAdminUpdate = (req, res, next) => {
   const { name, username, bio } = req.body;
   const typeErrors = [];
   if (name !== undefined && typeof name !== "string") {
@@ -121,14 +173,94 @@ export const validateProfileUpdate = (req, res, next) => {
     });
   }
   if (username) {
-    if (username.length < 3) {
+    if (username.length < 4) {
       return res.status(400).json({
-        message: "Username must be at least 3 characters long"
+        message: "Username must be at least 4 characters"
       });
-    } 
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+    }
+    if (username.length > 15) {
       return res.status(400).json({
-        message: "Username can only contain letters, numbers, and underscores"
+        message: "Username must be no more than 15 characters"
+      });
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+      return res.status(400).json({
+        message: "Username must contain only letters and numbers"
+      });
+    }
+  }
+
+  if (name) {
+    if (name.length < 4) {
+      return res.status(400).json({
+        message: "Name must be at least 4 characters"
+      });
+    }
+    if (name.length > 20) {
+      return res.status(400).json({
+        message: "Name must be no more than 20 characters"
+      });
+    }
+    if (!/^[a-zA-Z\s]+$/.test(name)) {
+      return res.status(400).json({
+        message: "Name must contain only English letters and spaces"
+      });
+    }
+  }
+
+  next();
+};
+// Validate user profile update data
+export const validateUserProfileUpdate = (req, res, next) => {
+  const { name, username } = req.body;
+  const typeErrors = [];
+  
+  if (name !== undefined && typeof name !== "string") {
+    typeErrors.push("Name must be a string");
+  }
+  if (username !== undefined && typeof username !== "string") {
+    typeErrors.push("Username must be a string");
+  }
+  
+  if (typeErrors.length > 0) {
+    return res.status(400).json({
+      message: "Validation errors",
+      errors: typeErrors
+    });
+  }
+  
+  if (username) {
+    if (username.length < 4) {
+      return res.status(400).json({
+        message: "Username must be at least 4 characters"
+      });
+    }
+    if (username.length > 15) {
+      return res.status(400).json({
+        message: "Username must be no more than 15 characters"
+      });
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+      return res.status(400).json({
+        message: "Username must contain only letters and numbers"
+      });
+    }
+  }
+
+  if (name) {
+    if (name.length < 4) {
+      return res.status(400).json({
+        message: "Name must be at least 4 characters"
+      });
+    }
+    if (name.length > 20) {
+      return res.status(400).json({
+        message: "Name must be no more than 20 characters"
+      });
+    }
+    if (!/^[a-zA-Z\s]+$/.test(name)) {
+      return res.status(400).json({
+        message: "Name must contain only English letters and spaces"
       });
     }
   }
