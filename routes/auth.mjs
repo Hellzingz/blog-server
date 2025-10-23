@@ -1,6 +1,19 @@
 import { Router } from "express";
-import { login, register, getUser, resetPassword, updateAdminProfile, updateUserProfile } from "../controllers/auth.mjs";
-import { validateRegistration, validateLogin, validatePasswordReset, validateAdminUpdate, validateUserProfileUpdate } from "../middlewares/auth.mjs";
+import {
+  login,
+  register,
+  getUser,
+  resetPassword,
+  updateAdminProfile,
+  updateUserProfile,
+} from "../controllers/auth.mjs";
+import {
+  validateRegistration,
+  validateLogin,
+  validatePasswordReset,
+  validateAdminUpdate,
+  validateUserProfileUpdate,
+} from "../middlewares/auth.mjs";
 import { protectUser, protectAdmin } from "../middlewares/protectRoute.mjs";
 import { imageFileUpload, uploadToSupabase } from "../middlewares/upload.mjs";
 
@@ -14,8 +27,27 @@ authRouter.post("/login", validateLogin, login);
 authRouter.get("/get-user", protectUser, getUser);
 
 //PUT Routes
-authRouter.put("/reset-password", protectUser, validatePasswordReset, resetPassword);
-authRouter.put("/update-profile", protectAdmin, validateAdminUpdate, imageFileUpload, uploadToSupabase, updateAdminProfile);
-authRouter.put("/update-user-profile", protectUser, imageFileUpload, uploadToSupabase, validateUserProfileUpdate, updateUserProfile);
+authRouter.put(
+  "/reset-password",
+  protectUser,
+  validatePasswordReset,
+  resetPassword
+);
+authRouter.put(
+  "/update-profile",
+  protectAdmin,
+  imageFileUpload,
+  uploadToSupabase,
+  validateAdminUpdate,
+  updateAdminProfile
+);
+authRouter.put(
+  "/update-user-profile",
+  protectUser,
+  imageFileUpload,
+  uploadToSupabase,
+  validateUserProfileUpdate,
+  updateUserProfile
+);
 
 export default authRouter;
