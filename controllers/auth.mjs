@@ -52,10 +52,8 @@ export const login = async (req, res) => {
 
 // GET User
 export const getUser = async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-
   try {
-    const result = await AuthService.getUser(token);
+    const result = await AuthService.getUser(req.user.id);
     
     if (result.success) {
       res.status(200).json(result.user);
@@ -75,16 +73,16 @@ export const getUser = async (req, res) => {
 
 // RESET Password
 export const resetPassword = async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
   const { oldPassword, newPassword } = req.body;
 
   try {
-    const result = await AuthService.resetPassword(token, oldPassword, newPassword);
+    const result = await AuthService.resetPassword(req.user.id, req.user.email, oldPassword, newPassword);
     
     if (result.success) {
       res.status(200).json({
         message: result.message,
         user: result.user,
+        access_token: result.access_token
       });
     } else {
       const statusCode = result.error.includes("Token missing") ? 401 : 
@@ -100,13 +98,12 @@ export const resetPassword = async (req, res) => {
 
 // UPDATE Profile
 export const updateAdminProfile = async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
   const { name, username, bio } = req.body;
 
   try {
     // ถ้าไม่มีรูปใหม่ ส่ง null แทน undefined
     const imageUrl = req.imageUrl || null;
-    const result = await AuthService.updateAdminProfile(token, name, username, bio, imageUrl);
+    const result = await AuthService.updateAdminProfile(req.user.id, name, username, bio, imageUrl);
     
     if (result.success) {
       res.status(200).json({
@@ -126,10 +123,9 @@ export const updateAdminProfile = async (req, res) => {
 
 // UPDATE User Profile
 export const updateUserProfile = async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
   const { name, username } = req.body;
   const imageUrl = req.imageUrl || null;
-  const result = await AuthService.updateUserProfile(token, name, username, imageUrl);
+  const result = await AuthService.updateUserProfile(req.user.id, name, username, imageUrl);
   if (result.success) {
     res.status(200).json({
       message: result.message,
