@@ -95,7 +95,7 @@ export async function login(email, password) {
 }
 
 // Get User
-export async function getUser(userId) {
+export async function getUser(userId, email) {
   try {
     if (!userId) {
       throw new Error("Unauthorized: User ID missing");
@@ -112,7 +112,7 @@ export async function getUser(userId) {
       success: true,
       user: {
         id: userData.id,
-        email: userData.email,
+        email: email,
         username: userData.username,
         bio: userData.bio,
         name: userData.name,
