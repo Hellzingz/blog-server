@@ -220,8 +220,12 @@ export async function updateAdminProfile(userId, name, username, bio, imageUrl) 
 
 // Update User Profile
 export async function updateUserProfile(userId, name, username, imageUrl) {
+  console.log("=== UPDATE USER PROFILE SERVICE DEBUG ===");
+  console.log("Service params:", { userId, name, username, imageUrl });
+  
   try {
     if (!userId) {
+      console.log("ERROR: User ID missing");
       throw new Error("Unauthorized: User ID missing");
     }
 
@@ -232,12 +236,21 @@ export async function updateUserProfile(userId, name, username, imageUrl) {
     if (imageUrl !== null) {
       updateData.profile_pic = imageUrl;
     }
+    
+    console.log("Update data:", updateData);
+    
     const { data: updatedUser, error: updateError } =
       await AuthRepository.updateProfile(userId, updateData);
 
+    console.log("Repository result:", { updatedUser, updateError });
+
     if (updateError || !updatedUser) {
+      console.log("ERROR: User not found or update failed");
       throw new Error("User not found");
     }
+    
+    console.log("SUCCESS: Profile updated successfully");
+    
     return {
       success: true,
       message: "Profile updated successfully",
@@ -249,6 +262,7 @@ export async function updateUserProfile(userId, name, username, imageUrl) {
       },
     };
   } catch (error) {
+    console.error("Service error:", error);
     return {
       success: false,
       error: error.message,
