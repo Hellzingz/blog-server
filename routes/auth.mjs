@@ -16,6 +16,6 @@ authRouter.get("/get-user", protectUser, getUser);
 //PUT Routes
 authRouter.put("/reset-password", protectUser, validatePasswordReset, resetPassword);
 authRouter.put("/update-profile", protectAdmin, validateAdminUpdate, imageFileUpload, uploadToSupabase, updateAdminProfile);
-authRouter.put("/update-user-profile", protectUser, validateUserProfileUpdate, imageFileUpload, uploadToSupabase, updateUserProfile);
+authRouter.put("/update-user-profile", protectUser, imageFileUpload, uploadToSupabase, validateUserProfileUpdate, updateUserProfile);
 
 export default authRouter;
