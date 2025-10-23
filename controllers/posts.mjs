@@ -17,15 +17,13 @@ export const createComment = async (req, res) => {
       });
     } else {
       res.status(400).json({
-        message: "Server could not create comment",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (error) {
     console.error("Controller crashed:", error);
     res.status(500).json({
-      message: "Server could not create comment",
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -41,15 +39,13 @@ export const handleLikes = async (req, res) => {
       res.json({ status: result.status });
     } else {
       res.status(500).json({
-        message: "Server Error",
-        error: result.error,
+      message: result.error,
       });
     }
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: "Server Error",
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -67,8 +63,7 @@ export const createPost = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({
-      message: "Server could not create post",
-      error: err.message,
+      message: err.message,
     });
   }
 };
@@ -82,14 +77,12 @@ export const readAllPosts = async (req, res) => {
       res.status(200).json(result.data);
     } else {
       res.status(500).json({
-        message: "Server could not get posts because of Supabase error",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (error) {
     res.status(500).json({
-      message: "Server could not get posts because of Supabase error",
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -105,15 +98,13 @@ export const readById = async (req, res) => {
       res.status(200).json(result.data);
     } else {
       res.status(500).json({
-        message: "Server could not get post because controller error",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (error) {
     console.error("readById error:", error);
     res.status(500).json({
-      message: "Server could not get post because controller error",
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -127,14 +118,12 @@ export const getPostTitles = async (req, res) => {
       res.status(200).json(result.data);
     } else {
       res.status(500).json({
-        message: "Server could not get post titles because database connection",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (error) {
     res.status(500).json({
-      message: "Server could not get post titles because database connection",
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -149,14 +138,12 @@ export const readComments = async (req, res) => {
       res.status(200).json(result.data);
     } else {
       res.status(500).json({
-        message: "Server could not get posts because of Supabase error",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (error) {
     res.status(500).json({
-      message: "Server could not get posts because of Supabase error",
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -187,15 +174,13 @@ export const updatePost = async (req, res) => {
     } else {
       const statusCode = result.error.includes("not found") ? 404 : 500;
       res.status(statusCode).json({
-        message: "Server could not update post",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (error) {
     console.error("Update post error:", error);
     res.status(500).json({
-      message: "Server could not update post",
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -210,15 +195,13 @@ export const deleteById = async (req, res) => {
       res.status(200).json({ message: result.message });
     } else {
       res.status(500).json({
-        message: "Server could not delete post because database connection",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (error) {
     console.error("Delete post error:", error);
     res.status(500).json({
-      message: "Server could not delete post because database connection",
-      error: error.message,
+      message: error.message,
     });
   }
 };

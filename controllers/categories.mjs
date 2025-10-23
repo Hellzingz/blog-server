@@ -11,15 +11,13 @@ export const readCategory = async (req, res) => {
       res.status(200).json(result.data);
     } else {
       res.status(500).json({
-        message: "Server could not get categories",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (err) {
     console.error("readCategory error:", err);
     res.status(500).json({
-      message: "Server could not get categories",
-      error: err.message,
+      message: err.message,
     });
   }
 };
@@ -35,15 +33,13 @@ export const readByIdCategory = async (req, res) => {
     } else {
       const statusCode = result.error.includes("not found") ? 404 : 500;
       res.status(statusCode).json({
-        message: "Server could not get category",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (err) {
     console.error("readByIdCategory error:", err);
     res.status(500).json({
-      message: "Server could not get category",
-      error: err.message,
+      message: err.message,
     });
   }
 };
@@ -62,15 +58,13 @@ export const createCategory = async (req, res) => {
     } else {
       const statusCode = result.error.includes("required") || result.error.includes("already exists") ? 400 : 500;
       res.status(statusCode).json({
-        message: "Server could not create category",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (err) {
     console.error("createCategory error:", err);
     res.status(500).json({
-      message: "Server could not create category",
-      error: err.message,
+      message: err.message,
     });
   }
 };
@@ -91,15 +85,13 @@ export const updateCategory = async (req, res) => {
       const statusCode = result.error.includes("required") || result.error.includes("already exists") ? 400 : 
                         result.error.includes("not found") ? 404 : 500;
       res.status(statusCode).json({
-        message: "Server could not update category",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (err) {
     console.error("updateCategory error:", err);
     res.status(500).json({
-      message: "Server could not update category",
-      error: err.message,
+      message: err.message,
     });
   }
 };
@@ -114,15 +106,13 @@ export const deleteCategory = async (req, res) => {
       res.status(200).json({ message: result.message });
     } else {
       res.status(500).json({
-        message: "Server could not delete category",
-        error: result.error,
+        message: result.error,
       });
     }
   } catch (err) {
     console.error("deleteCategory error:", err);
     res.status(500).json({
-      message: "Server could not delete category",
-      error: err.message,
+      message: err.message,
     });
   }
 };

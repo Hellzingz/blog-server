@@ -10,16 +10,19 @@ export const register = async (req, res) => {
     if (result.success) {
       res.status(201).json({
         message: result.message,
-        user: result.user,
       });
     } else {
       res.status(400).json({ error: result.error });
     }
   } catch (error) {
     console.error("Registration error:", error);
-    res.status(500).json({ 
-      error: "An error occurred during registration",
-      details: error.message 
+    
+    const statusCode = error.message.includes("already exists") ? 400 : 
+                      error.message.includes("Database error") ? 500 : 
+                      error.message.includes("Failed to create") ? 500 : 400;
+    
+    res.status(statusCode).json({ 
+      message: error.message,
     });
   }
 };
@@ -42,8 +45,7 @@ export const login = async (req, res) => {
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ 
-      error: "An error occurred during login",
-      details: error.message 
+      message: error.message,
     });
   }
 };
@@ -66,8 +68,7 @@ export const getUser = async (req, res) => {
   } catch (error) {
     console.error("Get user error:", error);
     res.status(500).json({ 
-      error: "Internal server error",
-      details: error.message 
+      message: error.message,
     });
   }
 };
@@ -93,7 +94,7 @@ export const resetPassword = async (req, res) => {
       res.status(statusCode).json({ error: result.error });
     }
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -119,6 +120,6 @@ export const updateProfilePic = async (req, res) => {
       res.status(statusCode).json({ error: result.error });
     }
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ message: error.message });
   }
 };
