@@ -95,20 +95,14 @@ export async function login(email, password) {
 }
 
 // Get User
-export async function getUser(token) {
+export async function getUser(userId) {
   try {
-    if (!token) {
-      throw new Error("Unauthorized: Token missing");
+    if (!userId) {
+      throw new Error("Unauthorized: User ID missing");
     }
 
-    const { data, error } = await AuthRepository.getUserFromToken(token);
-    if (error) {
-      throw new Error("Unauthorized or token expired");
-    }
-
-    const supabaseUserId = data.user.id;
     const { data: userData, error: userError } =
-      await AuthRepository.getUserById(supabaseUserId);
+      await AuthRepository.getUserById(userId);
 
     if (userError || !userData) {
       throw new Error("User not found in database");
@@ -117,8 +111,8 @@ export async function getUser(token) {
     return {
       success: true,
       user: {
-        id: data.user.id,
-        email: data.user.email,
+        id: userData.id,
+        email: userData.email,
         username: userData.username,
         bio: userData.bio,
         name: userData.name,
@@ -135,24 +129,22 @@ export async function getUser(token) {
 }
 
 // Reset Password
-export async function resetPassword(token, oldPassword, newPassword) {
+export async function resetPassword(userId, email, oldPassword, newPassword) {
   try {
-    if (!token) {
-      throw new Error("Unauthorized: Token missing");
+    if (!userId) {
+      throw new Error("Unauthorized: User ID missing");
+    }
+
+    if (!email) {
+      throw new Error("Email is required");
     }
 
     if (!newPassword) {
       throw new Error("New password is required");
     }
 
-    const { data: userData, error: userError } =
-      await AuthRepository.getUserFromToken(token);
-    if (userError) {
-      throw new Error("Unauthorized: Invalid token");
-    }
-
     const { error: loginError } = await AuthRepository.verifyPassword(
-      userData.user.email,
+      email,
       oldPassword
     );
     if (loginError) {
@@ -165,7 +157,7 @@ export async function resetPassword(token, oldPassword, newPassword) {
     }
 
     const { data: newSession, error: sessionError } =
-      await AuthRepository.signIn(userData.user.email, newPassword);
+      await AuthRepository.signIn(email, newPassword);
 
     if (sessionError) {
       throw new Error("Failed to refresh session after password update");
@@ -186,19 +178,11 @@ export async function resetPassword(token, oldPassword, newPassword) {
 }
 
 // Update Profile
-export async function updateAdminProfile(token, name, username, bio, imageUrl) {
+export async function updateAdminProfile(userId, name, username, bio, imageUrl) {
   try {
-    if (!token) {
-      throw new Error("Unauthorized: Token missing");
+    if (!userId) {
+      throw new Error("Unauthorized: User ID missing");
     }
-
-    const { data: userData, error: userError } =
-      await AuthRepository.getUserFromToken(token);
-    if (userError) {
-      throw new Error("Unauthorized: Invalid token");
-    }
-
-    const supabaseUserId = userData.user.id;
 
     const updateData = {
       name: name,
@@ -209,7 +193,7 @@ export async function updateAdminProfile(token, name, username, bio, imageUrl) {
       updateData.profile_pic = imageUrl;
     }
     const { data: updatedUser, error: updateError } =
-      await AuthRepository.updateProfile(supabaseUserId, updateData);
+      await AuthRepository.updateProfile(userId, updateData);
 
     if (updateError || !updatedUser) {
       throw new Error("User not found");
@@ -235,19 +219,11 @@ export async function updateAdminProfile(token, name, username, bio, imageUrl) {
 }
 
 // Update User Profile
-export async function updateUserProfile(token, name, username, imageUrl) {
+export async function updateUserProfile(userId, name, username, imageUrl) {
   try {
-    if (!token) {
-      throw new Error("Unauthorized: Token missing");
+    if (!userId) {
+      throw new Error("Unauthorized: User ID missing");
     }
-
-    const { data: userData, error: userError } =
-      await AuthRepository.getUserFromToken(token);
-    if (userError) {
-      throw new Error("Unauthorized: Invalid token");
-    }
-
-    const supabaseUserId = userData.user.id;
 
     const updateData = {
       name: name,
@@ -257,7 +233,7 @@ export async function updateUserProfile(token, name, username, imageUrl) {
       updateData.profile_pic = imageUrl;
     }
     const { data: updatedUser, error: updateError } =
-      await AuthRepository.updateProfile(supabaseUserId, updateData);
+      await AuthRepository.updateProfile(userId, updateData);
 
     if (updateError || !updatedUser) {
       throw new Error("User not found");
