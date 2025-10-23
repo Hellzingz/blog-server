@@ -53,7 +53,7 @@ export const login = async (req, res) => {
 // GET User
 export const getUser = async (req, res) => {
   try {
-    const result = await AuthService.getUser(req.user.id);
+    const result = await AuthService.getUser(req.user.id, req.user.email);
     
     if (result.success) {
       res.status(200).json(result.user);
