@@ -111,7 +111,10 @@ export async function getPostById(postId) {
       id: data.id,
       title: data.title,
       image: data.image,
-      category: data.categories.name,
+      category: {
+        id: data.categories.id,
+        name: data.categories.name,
+      },
       description: data.description,
       user: {
         id: data.users.id,
@@ -121,7 +124,10 @@ export async function getPostById(postId) {
       },
       date: data.date,
       content: data.content,
-      status: data.statuses.status,
+      status: {
+        id: data.statuses.id,
+        status: data.statuses.status,
+      },
       likes_count: data.likes_count,
     };
 
