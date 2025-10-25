@@ -2,12 +2,12 @@ import * as NotificationService from "../services/notification.mjs";
 
 export const createNotification = async (req, res) => {
   try {
-    const { 
-      type,          
-      target_type,    
-      target_id,     
-      recipient_id,       
-      actor_id,   
+    const {
+      type,
+      target_type,
+      target_id,
+      recipient_id,
+      actor_id,
       message,
       comment_text,
     } = req.body;
@@ -17,14 +17,14 @@ export const createNotification = async (req, res) => {
       return res.status(400).json({
         message: "Missing required fields",
         required: ["type", "target_type", "actor_id", "message"],
-        optional: ["recipient_id", "target_id"]
+        optional: ["recipient_id", "target_id"],
       });
     }
 
     // ตรวจสอบว่าไม่ใช่คนเดียวกัน (เฉพาะเมื่อมี recipient_id)
     if (recipient_id && recipient_id === actor_id) {
       return res.status(400).json({
-        message: "Error: Cannot create notification for self"
+        message: "Error: Cannot create notification for self",
       });
     }
 
@@ -40,7 +40,7 @@ export const createNotification = async (req, res) => {
 
     res.status(201).json({
       message: "Notification created successfully",
-      data: result
+      data: result,
     });
   } catch (error) {
     res.status(500).json({
@@ -49,22 +49,25 @@ export const createNotification = async (req, res) => {
   }
 };
 
-export const getAllNotifications = async (req, res) => {
-  try {
-    const notifications = await NotificationService.getAllNotifications();
-    res.json(notifications);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to get all notifications", error: error.message });
-  }
-};
-
 export const getNotificationsByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
-    const notifications = await NotificationService.getNotifications(userId);
-    res.json(notifications);
+    const { limit, page } = req.query;
+    const notifications = await NotificationService.getNotificationsByUserId(
+      { limit, page },
+      userId
+    );
+    res.json(
+      (data = {
+        totalPages: notifications.totalPages,
+        currentPage: notifications.currentPage,
+        notifications: notifications.notifications,
+      })
+    );
   } catch (error) {
-    res.status(500).json({ message: "Failed to get notifications", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to get notifications", error: error.message });
   }
 };
 
@@ -74,6 +77,11 @@ export const markNotificationAsRead = async (req, res) => {
     const result = await NotificationService.markAsRead(notificationId);
     res.json({ message: "Notification marked as read", data: result });
   } catch (error) {
-    res.status(500).json({ message: "Failed to mark notification as read", error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Failed to mark notification as read",
+        error: error.message,
+      });
   }
 };

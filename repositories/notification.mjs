@@ -2,8 +2,15 @@ import { supabase } from "../config/supabase.mjs";
 
 // CREATE Notification
 export async function createNotification(notificationData) {
-  const { type, target_type, target_id, recipient_id, actor_id, message, comment_text } =
-    notificationData;
+  const {
+    type,
+    target_type,
+    target_id,
+    recipient_id,
+    actor_id,
+    message,
+    comment_text,
+  } = notificationData;
 
   const { data, error } = await supabase
     .from("notifications")
@@ -27,7 +34,12 @@ export async function createNotification(notificationData) {
 }
 
 // GET Notifications by User ID
-export async function getNotifications(userId) {
+export async function getNotificationsByUserId(options, userId) {
+  const { page, limit } = options;
+  const truePage = Math.max(1, page);
+  const truelimit = Math.max(1, Math.min(100, limit));
+  const offset = (truePage - 1) * truelimit;
+
   const { data, error } = await supabase
     .from("notifications")
     .select(
@@ -43,10 +55,13 @@ export async function getNotifications(userId) {
     )
     .or(`recipient_id.eq.${userId},recipient_id.is.null`)
     .eq("is_read", false)
-    .order("created_at", { ascending: false });
+    .range(offset, offset + truelimit - 1)
+    .order("created_at", { ascending: false })
+    .count("exact");
 
   if (error) throw error;
-  return data;
+  const totalPages = Math.ceil(count / truelimit);
+  return { notifications: data, totalPages, currentPage: truePage };
 }
 
 // MARK Notification as Read
@@ -62,10 +77,16 @@ export async function markAsRead(notificationId) {
 }
 
 // GET All Notifications
-export async function getAllNotifications() {
-  const { data, error } = await supabase
+export async function getAllNotifications(options, userId) {
+  const { page, limit } = options;
+  const truePage = Math.max(1, page);
+  const truelimit = Math.max(1, Math.min(100, limit));
+  const offset = (truePage - 1) * truelimit;
+
+  const { data, count, error } = await supabase
     .from("notifications")
-    .select(`
+    .select(
+      `
       *,
       actor:actor_id (
         id,
@@ -73,10 +94,15 @@ export async function getAllNotifications() {
         name,
         profile_pic
       )
-    `)
+    `
+    )
     .eq("is_read", false)
-    .order("created_at", { ascending: false });
+    .eq("recipient_id", userId)
+    .range(offset, offset + truelimit - 1)
+    .order("created_at", { ascending: false })
+    .count("exact");
 
   if (error) throw error;
-  return data;
+  const totalPages = Math.ceil(count / truelimit);
+  return { notifications: data, totalPages, currentPage: truePage };
 }
