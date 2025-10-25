@@ -132,7 +132,8 @@ export const getPostTitles = async (req, res) => {
 export const readComments = async (req, res) => {
   try {
     const post_id = Number(req.params.postId);
-    const result = await PostsService.getComments(post_id, req.query);
+    const {limit, page} = req.query;
+    const result = await PostsService.getComments(post_id, {limit, page});
 
     if (result.success) {
       res.status(200).json(result.data);
