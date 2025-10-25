@@ -75,34 +75,3 @@ export async function markAsRead(notificationId) {
   if (error) throw error;
   return data[0];
 }
-
-// GET All Notifications
-export async function getAllNotifications(options, userId) {
-  const { page, limit } = options;
-  const truePage = Math.max(1, page);
-  const truelimit = Math.max(1, Math.min(100, limit));
-  const offset = (truePage - 1) * truelimit;
-
-  const { data, count, error } = await supabase
-    .from("notifications")
-    .select(
-      `
-      *,
-      actor:actor_id (
-        id,
-        username,
-        name,
-        profile_pic
-      )
-    `
-    )
-    .eq("is_read", false)
-    .eq("recipient_id", userId)
-    .range(offset, offset + truelimit - 1)
-    .order("created_at", { ascending: false })
-    .count("exact");
-
-  if (error) throw error;
-  const totalPages = Math.ceil(count / truelimit);
-  return { notifications: data, totalPages, currentPage: truePage };
-}
