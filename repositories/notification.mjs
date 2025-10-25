@@ -51,12 +51,12 @@ export async function getNotificationsByUserId({page, limit}, userId) {
             name,
             profile_pic
           )
-        `
+        `,
+        { count: 'exact' }
       )
       .eq("recipient_id", userId)
       .range(offset, offset + truelimit - 1)
-      .order("created_at", { ascending: false })
-      .count("exact");
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error('Supabase error:', error);
