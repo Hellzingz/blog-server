@@ -53,8 +53,11 @@ export const getNotificationsByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
     const { limit, page } = req.query;
+    const limitNum = limit ? parseInt(limit, 10) : 10;
+    const pageNum = page ? parseInt(page, 10) : 1;
+    
     const notifications = await NotificationService.getNotificationsByUserId(
-      { limit, page },
+      { limit: limitNum, page: pageNum },
       userId
     );
     res.json({
