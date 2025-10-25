@@ -55,6 +55,7 @@ export async function getNotificationsByUserId({page, limit}, userId) {
         { count: 'exact' }
       )
       .eq("recipient_id", userId)
+      .eq("is_read", false)
       .range(offset, offset + truelimit - 1)
       .order("created_at", { ascending: false });
 
