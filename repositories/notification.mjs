@@ -64,7 +64,7 @@ export async function getNotificationsByUserId({page, limit}, userId) {
     }
     
     const totalPages = Math.ceil(count / truelimit);
-    return { notifications: data || [], totalPages, currentPage: truePage };
+    return { data, totalPages, currentPage: truePage };
   } catch (error) {
     console.error('Repository error:', error);
     throw error;
