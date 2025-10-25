@@ -40,7 +40,7 @@ export async function getNotificationsByUserId(options, userId) {
   const truelimit = Math.max(1, Math.min(100, limit));
   const offset = (truePage - 1) * truelimit;
 
-  const { data, error } = await supabase
+  const { data, count, error } = await supabase
     .from("notifications")
     .select(
       `
@@ -53,7 +53,7 @@ export async function getNotificationsByUserId(options, userId) {
         )
       `
     )
-    .or(`recipient_id.eq.${userId},recipient_id.is.null`)
+    .eq("recipient_id", userId)
     .eq("is_read", false)
     .range(offset, offset + truelimit - 1)
     .order("created_at", { ascending: false })
