@@ -3,7 +3,9 @@ import * as NotificationRepository from "../repositories/notification.mjs";
 // CREATE Notification
 export async function createNotification(notificationData) {
   try {
-    const result = await NotificationRepository.createNotification(notificationData);
+    const result = await NotificationRepository.createNotification(
+      notificationData
+    );
     return result;
   } catch (error) {
     throw new Error("Server could not create notification");
@@ -13,7 +15,12 @@ export async function createNotification(notificationData) {
 // GET Notifications by User ID
 export async function getNotificationsByUserId(options, userId) {
   try {
-    const result = await NotificationRepository.getNotificationsByUserId(options, userId);
+    const page = Number(options.page) || 1;
+    const limit = Number(options.limit) || 10;
+    const result = await NotificationRepository.getNotificationsByUserId(
+      { page, limit },
+      userId
+    );
     return result;
   } catch (error) {
     throw new Error("Server could not get notifications");
@@ -29,4 +36,3 @@ export async function markAsRead(notificationId) {
     throw new Error("Server could not mark notification as read");
   }
 }
-
