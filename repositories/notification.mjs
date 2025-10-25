@@ -34,11 +34,10 @@ export async function createNotification(notificationData) {
 }
 
 // GET Notifications by User ID
-export async function getNotificationsByUserId(options, userId) {
+export async function getNotificationsByUserId({page, limit}, userId) {
   try {
-    const { page, limit } = options;
-    const truePage = Math.max(1, page || 1);
-    const truelimit = Math.max(1, Math.min(100, limit || 10));
+    const truePage = Math.max(1, page);
+    const truelimit = Math.max(1, Math.min(100, limit));
     const offset = (truePage - 1) * truelimit;
 
     const { data, count, error } = await supabase
