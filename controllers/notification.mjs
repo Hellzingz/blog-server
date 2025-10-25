@@ -57,13 +57,13 @@ export const getNotificationsByUserId = async (req, res) => {
       { limit, page },
       userId
     );
-    res.json(
-      (data = {
+    res.json({
+      data: {
         totalPages: notifications.totalPages,
         currentPage: notifications.currentPage,
         notifications: notifications.notifications,
-      })
-    );
+      }
+    });
   } catch (error) {
     res
       .status(500)
