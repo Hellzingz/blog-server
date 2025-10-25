@@ -94,6 +94,33 @@ export const validateUsername = (req, res, next) => {
   next();
 };
 
+// Validate name format (4-40 characters)
+export const validateName = (req, res, next) => {
+  const { name } = req.body;
+  
+  if (name) {
+    if (name.length < 4) {
+      return res.status(400).json({
+        message: 'Name must be at least 4 characters long'
+      });
+    }
+    
+    if (name.length > 40) {
+      return res.status(400).json({
+        message: 'Name must not exceed 40 characters'
+      });
+    }
+    
+    if (name.trim().length === 0) {
+      return res.status(400).json({
+        message: 'Name cannot be empty or contain only spaces'
+      });
+    }
+  }
+  
+  next();
+};
+
 // Validate comment data
 export const validateComment = (req, res, next) => {
   const { comment_text } = req.body;

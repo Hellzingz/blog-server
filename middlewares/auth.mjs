@@ -73,20 +73,20 @@ export const validateRegistration = (req, res, next) => {
     });
   }
 
-  // Name validation
+  // Name validation (4-40 characters)
   if (name.length < 4) {
     return res.status(400).json({
       message: "Name must be at least 4 characters"
     });
   }
-  if (name.length > 20) {
+  if (name.length > 40) {
     return res.status(400).json({
-      message: "Name must be no more than 20 characters"
+      message: "Name must not exceed 40 characters"
     });
   }
-  if (!/^[a-zA-Z\s]+$/.test(name)) {
+  if (name.trim().length === 0) {
     return res.status(400).json({
-      message: "Name must contain only English letters and spaces"
+      message: "Name cannot be empty or contain only spaces"
     });
   }
 
@@ -196,14 +196,14 @@ export const validateAdminUpdate = (req, res, next) => {
         message: "Name must be at least 4 characters"
       });
     }
-    if (name.length > 20) {
+    if (name.length > 40) {
       return res.status(400).json({
-        message: "Name must be no more than 20 characters"
+        message: "Name must not exceed 40 characters"
       });
     }
-    if (!/^[a-zA-Z\s]+$/.test(name)) {
+    if (name.trim().length === 0) {
       return res.status(400).json({
-        message: "Name must contain only English letters and spaces"
+        message: "Name cannot be empty or contain only spaces"
       });
     }
   }
@@ -263,14 +263,14 @@ export const validateUserProfileUpdate = (req, res, next) => {
         message: "Name must be at least 4 characters"
       });
     }
-    if (name.length > 20) {
+    if (name.length > 40) {
       return res.status(400).json({
-        message: "Name must be no more than 20 characters"
+        message: "Name must not exceed 40 characters"
       });
     }
-    if (!/^[a-zA-Z\s]+$/.test(name)) {
+    if (name.trim().length === 0) {
       return res.status(400).json({
-        message: "Name must contain only English letters and spaces"
+        message: "Name cannot be empty or contain only spaces"
       });
     }
   }
