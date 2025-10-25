@@ -11,9 +11,9 @@ export async function createNotification(notificationData) {
 }
 
 // GET Notifications by User ID
-export async function getNotifications(userId) {
+export async function getNotificationsByUserId(options, userId) {
   try {
-    const result = await NotificationRepository.getNotifications(userId);
+    const result = await NotificationRepository.getNotificationsByUserId(options, userId);
     return result;
   } catch (error) {
     throw new Error("Server could not get notifications");
@@ -30,12 +30,3 @@ export async function markAsRead(notificationId) {
   }
 }
 
-// GET All Notifications
-export async function getAllNotifications() {
-  try {
-    const result = await NotificationRepository.getAllNotifications();
-    return result;
-  } catch (error) {
-    throw new Error("Server could not get all notifications");
-  }
-}

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createNotification, getAllNotifications, getNotificationsByUserId, markNotificationAsRead } from "../controllers/notification.mjs";
+import { createNotification, getNotificationsByUserId, markNotificationAsRead } from "../controllers/notification.mjs";
 import { validateUserId } from "../middlewares/validation.mjs";
 
 const notificationRouter = Router();
@@ -8,7 +8,6 @@ const notificationRouter = Router();
 notificationRouter.post('/', createNotification);
 
 //GET Routes
-notificationRouter.get('/', getAllNotifications);
 notificationRouter.get('/:userId', validateUserId, getNotificationsByUserId);
 
 //PUT Routes
