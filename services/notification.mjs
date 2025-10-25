@@ -21,9 +21,15 @@ export async function getNotificationsByUserId(options, userId) {
       { page, limit },
       userId
     );
-    return result;
+    return {
+      success: true,
+      data: result,
+    };
   } catch (error) {
-    throw new Error("Server could not get notifications");
+    return {
+      success: false,
+      error: error.message,
+    };
   }
 }
 

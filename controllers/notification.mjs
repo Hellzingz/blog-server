@@ -54,17 +54,11 @@ export const getNotificationsByUserId = async (req, res) => {
     const { userId } = req.params;
     const { limit, page } = req.query;
 
-    const notifications = await NotificationService.getNotificationsByUserId(
+    const result = await NotificationService.getNotificationsByUserId(
       { limit, page },
       userId
     );
-    res.json({
-      data: {
-        totalPages: notifications.totalPages,
-        currentPage: notifications.currentPage,
-        notifications: notifications.notifications,
-      },
-    });
+    res.json({data: result});
   } catch (error) {
     res
       .status(500)
