@@ -23,7 +23,11 @@ export async function getNotificationsByUserId(options, userId) {
     );
     return {
       success: true,
-      data: result,
+      data: {
+        notifications: result.data,
+        totalPages: result.totalPages,
+        currentPage: result.currentPage
+      },
     };
   } catch (error) {
     return {

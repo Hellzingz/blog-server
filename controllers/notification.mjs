@@ -53,16 +53,21 @@ export const getNotificationsByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
     const { limit, page } = req.query;
-
     const result = await NotificationService.getNotificationsByUserId(
       { limit, page },
       userId
     );
-    res.json({data: result});
+    if (result.success) {
+      res.status(200).json(result.data);
+    } else {
+      res.status(500).json({
+        message: result.error,
+      });
+    }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to get notifications", error: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
