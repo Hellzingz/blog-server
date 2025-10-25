@@ -66,6 +66,7 @@ export async function getAllPosts(queryParams) {
         id: post.users.id,
         name: post.users.name,
         profile_pic: post.users.profile_pic,
+        bio: post.users.bio,
       },
       status: post.statuses.status,
       likes_count: post.likes_count,
@@ -147,7 +148,8 @@ export async function getPostById(postId) {
 export async function updatePost(postId, updateData, imageUrl) {
   try {
     const date = new Date();
-    const { title, category_id, description, content, status_id, user_id } = updateData;
+    const { title, category_id, description, content, status_id, user_id } =
+      updateData;
 
     const { data: existingPost, error: checkError } =
       await PostsRepository.checkPostExists(postId);
@@ -159,12 +161,15 @@ export async function updatePost(postId, updateData, imageUrl) {
     const updatePostData = { ...updateData, date: date };
 
     if (imageUrl !== null) {
-      updatePostData.image = imageUrl; 
+      updatePostData.image = imageUrl;
     } else {
       updatePostData.image = existingPost.image;
     }
 
-    const { data, error } = await PostsRepository.updatePost(postId, updatePostData);
+    const { data, error } = await PostsRepository.updatePost(
+      postId,
+      updatePostData
+    );
 
     if (error) {
       throw new Error("Server could not update post");
@@ -215,18 +220,24 @@ export async function createComment(postId, userId, commentText, postTitle) {
       comment_text: commentText,
     };
 
-    const { error } = await PostsRepository.createComment(commentData);
+    const { error } = await PostsRepository.createComment(
+      commentData,
+      userId,
+      postId
+    );
 
     if (error) {
       throw new Error("Supabase insert failed");
     }
 
     try {
-      const { data: post, error: postError } = await PostsRepository.getPostForLike(postId);
-      
+      const { data: post, error: postError } =
+        await PostsRepository.getPostForLike(postId);
+
       if (!postError && post && post.user_id !== userId) {
-        const { data: user, error: userError } = await AuthRepository.getUserById(userId);
-        
+        const { data: user, error: userError } =
+          await AuthRepository.getUserById(userId);
+
         if (!userError && user) {
           await NotificationService.createNotification({
             type: "comment",
@@ -240,7 +251,10 @@ export async function createComment(postId, userId, commentText, postTitle) {
         }
       }
     } catch (notificationError) {
-      console.error("Failed to create comment notification:", notificationError);
+      console.error(
+        "Failed to create comment notification:",
+        notificationError
+      );
     }
 
     return {
@@ -280,8 +294,11 @@ export async function getComments(postId, queryParams) {
       id: comment.id,
       comment: comment.comment_text,
       date: comment.created_at,
-      name: comment.users.name,
-      pic: comment.users.profile_pic,
+      user: {
+        id: comment.users.id,
+        name: comment.users.name,
+        profile_pic: comment.users.profile_pic,
+      },
     }));
 
     const results = {
@@ -337,8 +354,9 @@ export async function handleLikes(userId, postId, postTitle) {
 
       try {
         if (post.user_id !== userId) {
-          const { data: user, error: userError } = await AuthRepository.getUserById(userId);
-          
+          const { data: user, error: userError } =
+            await AuthRepository.getUserById(userId);
+
           if (!userError && user) {
             await NotificationService.createNotification({
               type: "unlike",
@@ -351,7 +369,10 @@ export async function handleLikes(userId, postId, postTitle) {
           }
         }
       } catch (notificationError) {
-        console.error("Failed to create unlike notification:", notificationError);
+        console.error(
+          "Failed to create unlike notification:",
+          notificationError
+        );
       }
 
       return {
@@ -364,8 +385,9 @@ export async function handleLikes(userId, postId, postTitle) {
 
       try {
         if (post.user_id !== userId) {
-          const { data: user, error: userError } = await AuthRepository.getUserById(userId);
-          
+          const { data: user, error: userError } =
+            await AuthRepository.getUserById(userId);
+
           if (!userError && user) {
             await NotificationService.createNotification({
               type: "like",
@@ -398,8 +420,11 @@ export async function handleLikes(userId, postId, postTitle) {
 export async function getPostTitles(status, keyword) {
   try {
     const statusId = parseInt(status);
-    const { data, error } = await PostsRepository.getPostTitles(statusId, keyword);
-    
+    const { data, error } = await PostsRepository.getPostTitles(
+      statusId,
+      keyword
+    );
+
     if (error) {
       throw new Error(
         "Server could not get post titles because database connection"
@@ -420,4 +445,3 @@ export async function getPostTitles(status, keyword) {
     };
   }
 }
-

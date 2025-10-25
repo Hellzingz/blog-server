@@ -32,7 +32,7 @@ export async function getAllPosts(options = {}) {
       id, image, title, description, date, content, likes_count,
       categories!inner(id, name),
       statuses(id, status),
-      users!inner(id, name, profile_pic)
+      users!inner(id, name, profile_pic, bio)
     `,
       { count: "exact" }
     )
@@ -117,7 +117,14 @@ export async function deletePost(postId) {
 }
 
 // CREATE Comment - Database operation
-export async function createComment(commentData) {
+export async function createComment(commentData, userId, postId) {
+  const { data: post, error: postError } = await getPostById(postId);
+  if (userId === post.user_id) {
+    throw new Error("You cannot comment on your own post");
+  }
+  if (postError) {
+    throw postError;
+  }
   const { error } = await supabase.from("comments").insert([commentData]);
 
   return { error };
@@ -138,7 +145,7 @@ export async function getComments(postId, options = {}) {
       post_id,
       comment_text,
       created_at,
-      users!inner(name, profile_pic)
+      users!inner(id, name, profile_pic)
     `,
       { count: "exact" }
     )
@@ -204,14 +211,14 @@ export async function getPostTitles(statusId, keyword) {
     .from("posts")
     .select("id, title")
     .eq("status_id", statusId);
-  
+
   if (keyword && keyword.trim() !== "") {
     query = query.ilike("title", `%${keyword}%`);
   }
-  
+
   const { data, error } = await query
     .order("date", { ascending: false })
     .limit(5);
-    
+
   return { data, error };
 }
