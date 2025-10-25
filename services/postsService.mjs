@@ -156,23 +156,15 @@ export async function updatePost(postId, updateData, imageUrl) {
       throw new Error("Post not found");
     }
 
-    const updateData = {
-      title: title,
-      category_id: category_id,
-      description: description,
-      content: content,
-      status_id: status_id,
-      date: date,
-      user_id: user_id,
-    };
+    const updatePostData = { ...updateData, date: date };
 
     if (imageUrl !== null) {
-      updateData.image = imageUrl;
+      updatePostData.image = imageUrl; 
     } else {
-      updateData.image = existingPost.image;
+      updatePostData.image = existingPost.image;
     }
 
-    const { data, error } = await PostsRepository.updatePost(postId, updateData);
+    const { data, error } = await PostsRepository.updatePost(postId, updatePostData);
 
     if (error) {
       throw new Error("Server could not update post");
