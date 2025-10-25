@@ -132,7 +132,7 @@ export async function createComment(commentData, userId, postId) {
 
 // GET Comments - Database operation with pagination and joins
 export async function getComments(postId, options = {}) {
-  const { page = 1, limit = 6 } = options;
+  const { page, limit } = options;
   const truePage = Math.max(1, page);
   const truelimit = Math.max(1, Math.min(100, limit));
   const offset = (truePage - 1) * truelimit;
