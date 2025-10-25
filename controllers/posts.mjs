@@ -3,7 +3,7 @@ import * as PostsService from "../services/postsService.mjs";
 // POST Comment
 export const createComment = async (req, res) => {
   try {
-    const { post_id, user_id, comment_text,post_title } = req.body;
+    const { post_id, user_id, comment_text, post_title } = req.body;
     const result = await PostsService.createComment(
       post_id,
       user_id,
@@ -39,7 +39,7 @@ export const handleLikes = async (req, res) => {
       res.json({ status: result.status });
     } else {
       res.status(500).json({
-      message: result.error,
+        message: result.error,
       });
     }
   } catch (error) {
@@ -54,7 +54,7 @@ export const handleLikes = async (req, res) => {
 export const createPost = async (req, res) => {
   try {
     const newPost = req.body;
-    const imageUrl = req.imageUrl
+    const imageUrl = req.imageUrl;
     const result = await PostsService.createPost(newPost, imageUrl);
 
     res.status(201).json({
@@ -111,9 +111,9 @@ export const readById = async (req, res) => {
 
 //GET Post Titles
 export const getPostTitles = async (req, res) => {
-  const { status,keyword } = req.query;
+  const { status, keyword } = req.query;
   try {
-    const result = await PostsService.getPostTitles(status,keyword);
+    const result = await PostsService.getPostTitles(status, keyword);
     if (result.success) {
       res.status(200).json(result.data);
     } else {
@@ -152,7 +152,8 @@ export const readComments = async (req, res) => {
 export const updatePost = async (req, res) => {
   try {
     const { postId } = req.params;
-    const { title, category_id, description, content, status_id,user_id } = req.body;
+    const { title, category_id, description, content, status_id, user_id } =
+      req.body;
     const imageUrl = req.imageUrl;
     const result = await PostsService.updatePost(
       postId,
